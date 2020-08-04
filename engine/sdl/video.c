@@ -20,7 +20,12 @@
 #include "video.h"
 #include "vga.h"
 #include "screen.h"
+#ifdef PANDORA
 #include "opengl.h"
+#include "SDL_opengles.h"
+#else
+#include "opengl.h"
+#endif
 #include "savedata.h"
 #include "gfxtypes.h"
 #include "gfx.h"
@@ -39,8 +44,13 @@ yuv_video_mode stored_yuv_mode;
 int yuv_mode = 0;
 char windowTitle[MAX_LABEL_LEN] = {"OpenBOR"};
 int stretch = 0;
+#ifdef PANDORA
+int opengl = 1;
+int nativeWidth = 800, nativeHeight = 480;
+#else
 int opengl = 0; // OpenGL backend currently in use?
 int nativeWidth, nativeHeight; // monitor resolution used in fullscreen mode
+#endif
 int brightness = 0;
 
 void initSDL()
@@ -91,11 +101,23 @@ int SetVideoMode(int w, int h, int bpp, bool gl)
 	static int last_x = SDL_WINDOWPOS_UNDEFINED;
 	static int last_y = SDL_WINDOWPOS_UNDEFINED;
 
-	if(gl) flags |= SDL_WINDOW_OPENGL;
-	if(savedata.fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+#ifdef PANDORA
+    flags |= SDL_WINDOW_OPENGL;
+    savedata.fullscreen = 1;
+#else
+    if(gl) flags |= SDL_WINDOW_OPENGL;
+#endif
+#ifdef PANDORA
+    if(savedata.fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
 
-	if(!(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP))
-		SDL_GetWindowPosition(window, &last_x, &last_y);
+    if(!(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+         SDL_GetWindowPosition(window, &last_x, &last_y);
+#else
+    if(savedata.fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+    if(!(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP))
+         SDL_GetWindowPosition(window, &last_x, &last_y);
+#endif
 
 	if(window && gl != last_gl)
 	{
@@ -109,11 +131,21 @@ int SetVideoMode(int w, int h, int bpp, bool gl)
 	renderer = NULL;
 	texture = NULL;
 
+#ifdef PANDORA
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif
+
 	if(window)
 	{
 		if(savedata.fullscreen)
 		{
-			SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+#ifdef PANDORA
+            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+#else
+            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+#endif
 		}
 		else
 		{
