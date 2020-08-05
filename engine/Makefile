@@ -143,12 +143,13 @@ BUILD_GFX       = 1
 BUILD_PTHREAD   = 1
 BUILD_SDL_IO    = 1
 BUILD_TREMOR    = 1
+BUILD_WEBM      = 1
 BUILDING        = 1
-CC  	        = $(PNDDEV)/bin/arm-none-linux-gnueabi-gcc
-INCLUDES        = $(PNDDEV)/include \
-                  $(PNDDEV)/include/SDL
+CC  	        = $(CODEBLOCKS_DATA_DIR)/usr/bin/gcc
+INCLUDES        = $(CODEBLOCKS_DATA_DIR)/usr/include \
+                  $(CODEBLOCKS_DATA_DIR)/usr/include/SDL2
 OBJTYPE         = elf
-LIBRARIES       = $(PNDDEV)/lib
+LIBRARIES       = $(CODEBLOCKS_DATA_DIR)/usr/lib
 ifeq ($(BUILD_PANDORA), 0)
 BUILD_DEBUG     = 1
 endif
@@ -199,7 +200,7 @@ ifdef BUILD_DARWIN
 STRIP           = $(PREFIX)strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_PANDORA
-STRIP 	        = $(PNDDEV)/bin/arm-none-linux-gnueabi-strip $(TARGET) -o $(TARGET_FINAL)
+STRIP 	        = $(CODEBLOCKS_DATA_DIR)/bin/strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_WII
 STRIP           = elf2dol $< $@

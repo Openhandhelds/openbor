@@ -228,6 +228,28 @@ function windows {
   fi
 }
 
+# Pandora Environment && Compile
+function pandora {
+  export PATH=$OLD_PATH
+  . ./environ.sh 11
+  if test $CODEBLOCKS_DATA_DIR; then
+    make clean BUILD_PANDORA=1
+    make BUILD_PANDORA=1
+    if test ! -e "./releases/Pandora" ; then
+        mkdir ./releases/Pandora
+        mkdir ./releases/Pandora/OpenBOR
+        mkdir ./releases/Pandora/OpenBOR/Logs
+        mkdir ./releases/Pandora/OpenBOR/Paks
+        mkdir ./releases/Pandora/OpenBOR/Saves
+        mkdir ./releases/Pandora/OpenBOR/ScreenShots
+      fi
+      cp ./resources/meta.xml ./releases/Pandora/OpenBOR
+      cp ./resources/OpenBOR_Icon_128x48.png ./releases/Pandora/OpenBOR/icon.png
+    fi
+    make clean BUILD_PANDORA=1
+  fi
+}
+
 # Wii Environment && Compile
 function wii {
   export PATH=$OLD_PATH
