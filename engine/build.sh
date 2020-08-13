@@ -233,7 +233,7 @@ function pandora {
   export PATH=$OLD_PATH
   . ./environ.sh 11
   if test $CODEBLOCKS_DATA_DIR; then
-#    make clean BUILD_PANDORA=1
+    make clean BUILD_PANDORA=1
     make BUILD_PANDORA=1
     if test ! -e "./releases/PANDORA" ; then
       mkdir ./releases/PANDORA
@@ -258,7 +258,7 @@ function pandora {
     $CODEBLOCKS_DATA_DIR/copy_libs.sh ../bin/$SHORT_VERSION/OpenBOR
     cd -
   fi
-#  make clean BUILD_PANDORA=1
+  make clean BUILD_PANDORA=1
 }
 
 # Wii Environment && Compile
