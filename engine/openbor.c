@@ -1,4 +1,4 @@
-/*
+ /*
  * OpenBOR - http://www.chronocrash.com
  * -----------------------------------------------------------------------
  * All rights reserved, see LICENSE in OpenBOR root for details.
@@ -212,11 +212,11 @@ char                *custBkgrds = NULL;
 char                *custLevels = NULL;
 char                *custModels = NULL;
 char                rush_names[2][MAX_NAME_LEN];
-char				skipselect[MAX_PLAYERS][MAX_NAME_LEN];
+char                skipselect[MAX_PLAYERS][MAX_NAME_LEN];
 char                branch_name[MAX_NAME_LEN + 1];  // Used for branches
 char                allowselect_args[MAX_ALLOWSELECT_LEN]; // stored allowselect players
-int					useSave = 0;
-int					useSet = -1;
+int                 useSave = 0;
+int                 useSet = -1;
 unsigned char       pal[MAX_PAL_SIZE] = {""};
 int                 blendfx[MAX_BLENDINGS] = {0, 1, 0, 0, 0, 0};
 char                blendfx_is_set = 0;
@@ -492,7 +492,7 @@ unsigned char		bg_palette_cache[MAX_CACHED_BACKGROUNDS][MAX_PAL_SIZE];
 
 s_debug_xy_msg      debug_xy_msg;
 int                 cameratype          = 0;
-int					defaultmaxplayers	= 2;
+int                 defaultmaxplayers   = 2;
 
 u32                 go_time             = 0;
 u32                 _time               = 0;
@@ -35740,7 +35740,7 @@ void savelevelinfo()
         save->pSpawnmp[i] = player[i].spawnmp;
         save->pWeapnum[i] = player[i].weapnum;
         save->pColourmap[i] = player[i].colourmap;
-        strncpy(save->pName[i], player[i].name, MAX_NAME_LEN);
+        memcpy(save->pName[i], player[i].name, MAX_NAME_LEN);
     }
     save->credits = credits;
     save->level = current_level;

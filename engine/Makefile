@@ -136,7 +136,7 @@ endif
 ifdef BUILD_PANDORA
 TARGET 	        = $(VERSION_NAME).elf
 TARGET_FINAL    = $(VERSION_NAME)
-TARGET_PLATFORM = PANDORA
+TARGET_PLATFORM = Pandora
 BUILD_LINUX     = 1
 BUILD_SDL       = 1
 BUILD_GFX       = 1
@@ -200,7 +200,7 @@ ifdef BUILD_DARWIN
 STRIP           = $(PREFIX)strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_PANDORA
-STRIP 	        = $(CODEBLOCKS_DATA_DIR)/bin/strip $(TARGET) -o $(TARGET_FINAL)
+STRIP 	        = $(CODEBLOCKS_DATA_DIR)usr/bin/strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_WII
 STRIP           = elf2dol $< $@
@@ -321,12 +321,12 @@ SCRIPT          = source/scriptlib/StackedSymbolTable.o                         
                   source/preprocessorlib/pp_parser.o                                                \
                   source/preprocessorlib/pp_expr.o
 SCRIPT_BUILTINS = source/openborscript/commands.o                                                   \
-				  source/openborscript/animation.o                                                  \
-				  source/openborscript/axis.o                                           			\
-				  source/openborscript/binding.o                                           			\
+		  source/openborscript/animation.o                                                  \
+		  source/openborscript/axis.o                                           			\
+		  source/openborscript/binding.o                                           			\
                   source/openborscript/collision_attack.o                                           \
                   source/openborscript/collision_body.o                                             \
-				  source/openborscript/collision_entity.o                                           \
+		  source/openborscript/collision_entity.o                                           \
                   source/openborscript/constants.o                                                  \
                   source/openborscript/energy_status.o                                             	\
                   source/openborscript/entity.o                                                   	\
@@ -340,11 +340,9 @@ RAND	        = source/randlib/rand32.o
 PNG             = source/pnglib/pngdec.o                                                            \
                   source/pnglib/savepng.o
 SOURCE	        = source/stringptr.o                                                                \
-				  source/utils.o                                                                    \
+		  source/utils.o                                                                    \
                   source/stristr.o																	\
                   source/omath.o
-
-
 
 ifdef BUILD_PSP
 GAME_CONSOLE    = psp/control/control.o                                                             \
@@ -388,7 +386,6 @@ GAME	       += source/gamelib/filters.o
 endif
 
 
-
 ifdef BUILD_SDL_IO
 GAME_CONSOLE   += sdl/joysticks.o                                                                   \
                   sdl/control.o                                                                     \
@@ -397,7 +394,7 @@ GAME_CONSOLE   += sdl/joysticks.o                                               
                   sdl/sdlport.o                                                                     \
                   sdl/video.o                                                                       \
                   sdl/videocommon.o                                                                 \
-				  sdl/threads.o                                                                     \
+		  sdl/threads.o                                                                     \
                   sdl/menu.o
 endif
 
@@ -415,10 +412,10 @@ endif
 ifdef BUILD_WEBM
 WEBM 	       += source/webmlib/vidplay.o                                                          \
                   source/webmlib/vorbis.o                                                           \
-				  source/webmlib/samplecvt.o                                                        \
+		  source/webmlib/samplecvt.o                                                        \
                   source/webmlib/yuv.o                                                              \
-				  source/webmlib/halloc/halloc.o                                                    \
-				  source/webmlib/nestegg/nestegg.o
+		  source/webmlib/halloc/halloc.o                                                    \
+		  source/webmlib/nestegg/nestegg.o
 endif
 
 
