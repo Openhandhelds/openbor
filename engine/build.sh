@@ -228,6 +228,39 @@ function windows {
   fi
 }
 
+# Pandora Environment && Compile
+function pandora {
+  export PATH=$OLD_PATH
+  . ./environ.sh 11
+  if test $CODEBLOCKS_DATA_DIR; then
+    make clean BUILD_PANDORA=1
+    make BUILD_PANDORA=1
+    if test ! -e "./releases/PANDORA" ; then
+      mkdir ./releases/PANDORA
+      mkdir ./releases/PANDORA/bin
+      mkdir ./releases/PANDORA/bin/$SHORT_VERSION
+      mkdir ./releases/PANDORA/lib
+      mkdir ./releases/PANDORA/scripts
+      mkdir ./releases/PANDORA/share
+      mkdir ./releases/PANDORA/share/OpenBOR
+      mkdir ./releases/PANDORA/share/OpenBOR/previews
+    fi
+    mv OpenBOR ./releases/PANDORA/bin/$SHORT_VERSION
+    mv ./releases/COMPILING.txt ./releases/PANDORA/
+    mv ./releases/LICENSE.txt ./releases/PANDORA/
+    mv ./releases/README.txt ./releases/PANDORA/
+    cp ./resources/meta.xml ./releases/PANDORA/
+    cp ./resources/OpenBOR_Logo_320x240.png ./releases/PANDORA/share/OpenBOR/logo.png
+    cp ../tools/pandora/PXML.xml ./releases/PANDORA/   
+    cp ../tools/pandora/scripts/* ./releases/PANDORA/scripts/
+    cp -R $CODEBLOCKS_DATA_DIR/usr/share/X11 ./releases/PANDORA/share/
+    cd releases/PANDORA/lib
+    $CODEBLOCKS_DATA_DIR/copy_libs.sh ../bin/$SHORT_VERSION/OpenBOR
+    cd -
+  fi
+  make clean BUILD_PANDORA=1
+}
+
 # Wii Environment && Compile
 function wii {
   export PATH=$OLD_PATH
@@ -323,6 +356,7 @@ function print_help {
   echo "    5 = Windows"
   echo "    7 = Wii"
   echo "   10 = Darwin"
+  echo "   11 = Pandora"
   echo "  all = build for all applicable targets"
   echo "-------------------------------------------------------"
   echo "Example: $0 10"
@@ -363,6 +397,11 @@ case $1 in
   10)
     version
     darwin
+    ;;
+
+  11)
+    version
+    pandora
     ;;
 
   ?)

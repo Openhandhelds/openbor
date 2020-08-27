@@ -35251,7 +35251,7 @@ void savelevelinfo()
         save->pSpawnmp[i] = player[i].spawnmp;
         save->pWeapnum[i] = player[i].weapnum;
         save->pColourmap[i] = player[i].colourmap;
-        strncpy(save->pName[i], player[i].name, MAX_NAME_LEN);
+        memcpy(save->pName[i], player[i].name, MAX_NAME_LEN);
     }
     save->credits = credits;
     save->level = current_level;
