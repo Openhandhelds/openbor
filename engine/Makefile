@@ -480,7 +480,7 @@ endif
 
 
 ifdef BUILD_PANDORA
-CFLAGS         += -DLINUX
+CFLAGS         += -DLINUX -DPANDORA
 endif
 
 
