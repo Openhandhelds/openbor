@@ -26,7 +26,7 @@
   </package>
 
  <application id="OpenBOR-v3.0b3482" appdata="OpenBOR">
-    <exec command="scripts/run_openbor.sh" arguments="v3.0b3482"/>
+    <exec command="scripts/run_openbor.sh" arguments="v3.0b3482 MOD_NAME"/>
     <title lang="en_US">OpenBOR v3.0b3482</title>
     <author name="fantomid" website="http://www.chronocrash.com"/>
     <version major="3" minor="0" release="r3482" build="01"/>         <!--This programs version-->
