@@ -245,7 +245,7 @@ function pandora {
       mkdir ./releases/PANDORA/share/OpenBOR
       mkdir ./releases/PANDORA/share/OpenBOR/previews
     fi
-    mv OpenBOR ./releases/PANDORA/bin/$SHORT_VERSION
+    mv OpenBOR ./releases/PANDORA/bin/$SHORT_VERSION/
     mv ./releases/COMPILING.txt ./releases/PANDORA/
     mv ./releases/LICENSE.txt ./releases/PANDORA/
     mv ./releases/README.txt ./releases/PANDORA/
