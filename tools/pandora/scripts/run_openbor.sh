@@ -19,4 +19,7 @@ fi
 if [ "$SDL_VERSION" != "UNKNOWN"  ]
 then
   ./scripts/start_openbor.sh "$VERSION" "$SDL_VERSION" "$OPENBOR_MOD"
+else
+  echo "Can't start OpenBOR: SDL version is unknown"
 fi
+

@@ -6,7 +6,7 @@ OPENBOR_MOD=$3
 export PATH="/mnt/utmp/$OPENBOR_MOD/bin/$OPENBOR_VERSION:${PATH:-"/usr/bin:/bin:/usr/local/bin"}"
 export LD_LIBRARY_PATH="/mnt/utmp/$OPENBOR_MOD/lib:${LD_LIBRARY_PATH:-"/usr/lib:/lib"}"
 export PND_HOME="/mnt/utmp/$OPENBOR_MOD"
-export HOME="/mnt/utmp/$OPENBOR_MOD/$OPENBOR_VERSION" XDG_CONFIG_HOME="/mnt/utmp/$OPENBOR_MOD"
+export XDG_CONFIG_HOME="/mnt/utmp/$OPENBOR_MOD"
 
 if [ -d /mnt/utmp/$OPENBOR_MOD/share ];then
   export XDG_DATA_DIRS=/mnt/utmp/$OPENBOR_MOD/share:$XDG_DATA_DIRS:/usr/share
@@ -27,11 +27,6 @@ else
   fi
 fi
 cd $PND_HOME
-if [ ! -e $VERSION ]
-then
-  mkdir $VERSION
-fi
-cd $HOME
 if [ ! -e Images ]
 then
   mkdir Images
@@ -63,3 +58,4 @@ if [ -e "$PND_HOME/scripts/post_script.sh" ];then
 else
 	exec OpenBOR $*
 fi
+

@@ -3089,7 +3089,7 @@ int getValidInt(char *text, char *file, char *cmd)
     }
     if(isNumeric(text))
     {
-        return atoi(text);
+        return safe_atoi(text);
     }
     else
     {
@@ -22194,7 +22194,10 @@ void display_ents()
 
                     if(e->modeldata.setlayer)
                     {
-                        z = HOLE_Z + e->modeldata.setlayer;    // Setlayer takes precedence
+                        if(e->modeldata.setlayer == INT32_MAX)
+							z = INT32_MAX;
+						else
+							z = HOLE_Z + e->modeldata.setlayer;    // Setlayer takes precedence
                     }
 
                     //UT: commented this out, it seems to be some legacy code, ==2 doesn't make sense anymore

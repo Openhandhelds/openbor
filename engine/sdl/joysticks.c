@@ -480,7 +480,7 @@ char* OPENDINGUX_GetKeyName(int keycode)
 #ifdef PANDORA
 char* PANDORA_GetKeyName(int keycode)
 {
-		if (keycode == PANDORA_BUTTON_SELECT)  return "Select";
+	if (keycode == PANDORA_BUTTON_SELECT)  return "Select";
 	else if (keycode == PANDORA_BUTTON_START)   return "Start";
 	else if (keycode == PANDORA_BUTTON_UP)      return "Up";
 	else if (keycode == PANDORA_BUTTON_DOWN)    return "Down";
@@ -492,7 +492,11 @@ char* PANDORA_GetKeyName(int keycode)
 	else if (keycode == PANDORA_BUTTON_B)       return "B";
 	else if (keycode == PANDORA_BUTTON_L1)      return "L1";
 	else if (keycode == PANDORA_BUTTON_R1)      return "R1";
-	else return "...";
+#ifdef SDL2
+	else return (char*)SDL_GetScancodeName(keycode);
+#else
+	else return (char*)SDL_GetScancodeName(keycode);
+#endif
 }
 #endif
 
