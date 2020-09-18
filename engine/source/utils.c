@@ -737,10 +737,16 @@ int isValueOverflow(int32_t value, int32_t sign, int32_t number) {
     return 1;
 }
 
-int32_t safe_atoi(char* str) {
+int32_t safe_atoi(char* str, unsigned char* errSeveralSigns, unsigned char* errInvalidNumberFound, unsigned char* errOverflow) {
     char* itStr = str;
     int32_t sign = 0, value = 0, number = -1;
 
+    if(errSeveralSigns)
+        *errSeveralSigns = 0;
+    if(errInvalidNumberFound)
+        *errInvalidNumberFound = 0;
+    if(errOverflow)
+        *errOverflow = 0;
     while(*itStr != '\0') {
         if(*itStr == ' ') {
             itStr++;
@@ -751,6 +757,8 @@ int32_t safe_atoi(char* str) {
 #ifdef VERBOSE
             printf("Several signs in the number\n");
 #endif
+            if(errSeveralSigns)
+                *errSeveralSigns = UCHAR_MAX;
             break;
         }
 
@@ -767,6 +775,8 @@ int32_t safe_atoi(char* str) {
 #ifdef VERBOSE
             printf("Invalid number found (%ld) !!\n", itStr - str);
 #endif
+            if(errInvalidNumberFound)
+                *errInvalidNumberFound = UCHAR_MAX;
             break;
         }
         if(sign == 0 && number != -1)
@@ -776,10 +786,12 @@ int32_t safe_atoi(char* str) {
             value = value * 10 + number;
         }
         else {
+            value = sign > 0 ? INT32_MAX : INT32_MIN;
 #ifdef VERBOSE
             printf("Overflow (%ld) !!\n", itStr - str);
 #endif
-            value = sign > 0 ? INT32_MAX : INT32_MIN;
+            if(errOverflow)
+                *errOverflow = UCHAR_MAX;
             break;
         }
         itStr++;

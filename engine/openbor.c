@@ -3083,13 +3083,20 @@ int isNumeric(char *text)
 int getValidInt(char *text, char *file, char *cmd)
 {
     static const char *WARN_NUMBER_EXPECTED = "WARNING: %s tries to load a non-numeric value at %s, where a number is expected!\nerroneus string: %s\n";
+    static const char *WARN_NUMBER_OVERFLOW = "WARNING: %s tries to load a numeric value at %s but overflow occurred!\nerroneus string: %s not in [%d, %d]\n";
     if(!text || !*text)
     {
         return 0;
     }
     if(isNumeric(text))
     {
-        return safe_atoi(text);
+        unsigned char errSeveralSigns, errInvalidNumberFound, errOverflow;
+        int returnInt = safe_atoi(text, &errSeveralSigns, &errInvalidNumberFound, &errOverflow);
+        if(errSeveralSigns == UCHAR_MAX || errInvalidNumberFound == UCHAR_MAX)
+            printf(WARN_NUMBER_EXPECTED, file, cmd, text);
+        if(errOverflow == UCHAR_MAX)
+            printf(WARN_NUMBER_OVERFLOW, file, cmd, text, INT32_MIN, INT32_MAX);
+        return returnInt;
     }
     else
     {
