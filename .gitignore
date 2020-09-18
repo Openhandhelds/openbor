@@ -4,3 +4,6 @@
 OpenBOR.elf
 meta.xml
 engine/releases/
+engine/resources/Info.plist
+engine/version.h
+

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PXML xmlns="http://openpandora.org/namespaces/PXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PXML_schema.xsd">
+<!-- please see http://pandorawiki.org/PXML_specification for more information before editing, and remember the order does matter -->
+
+  <package id="CHANGE_WITH_PAK_NAME_LOWER_CASE">
+    <author name="fantomid" website="http://www.chronocrash.com"/>
+    <version major="1" minor="0" release="0" build="1" type="release"/>
+    <titles>
+      <title lang="en_US">CHANGE_WITH_PAK_NAME_UPPER_LOWER_CASE</title>
+    </titles>
+    <descriptions>
+      <description lang="en_US">
+         PAK_INFORMATION
+         OpenBOR is a continuation of the Beats of Rage 2D game engine. Home of the official community and developement team: www.chronocrash.com/forum
+         Games could be downloaded from the page www.chronocrash.com/forum/index.php?topic=2360.0
+         Documentation is maintained here: dcemulation.org/?title=OpenBORManual
+      </description>
+    </descriptions>
+    <icon src="share/OpenBOR/logo.png"/>
+    <previewpics>
+      <pic src="share/OpenBOR/previews/0000.png"/>
+      <pic src="share/OpenBOR/previews/0001.png"/>
+      <pic src="share/OpenBOR/previews/0002.png"/>
+      <pic src="share/OpenBOR/previews/0003.png"/>
+    </previewpics>
+  </package>
+
+ <application id="OpenBOR-v3.0b3482" appdata="OpenBOR">
+    <exec command="scripts/run_openbor.sh" arguments="v3.0b3482 MOD_NAME"/>
+    <title lang="en_US">OpenBOR v3.0b3482</title>
+    <author name="fantomid" website="http://www.chronocrash.com"/>
+    <version major="3" minor="0" release="r3482" build="01"/>         <!--This programs version-->
+    <description lang="en_US">version 3.0 build 3482
+    </description>
+    <icon src="share/OpenBOR/logo.png"/>
+    <categories>
+      <!-- http://standards.freedesktop.org/menu-spec/latest/apa.html -->
+      <category name="Game">
+        <subcategory name="ArcadeGame"/>
+      </category>
+    </categories>
+  </application>
+ 
+  <application id="OpenBOR-v3.0b3711" appdata="OpenBOR">
+    <exec command="scripts/run_openbor.sh" arguments="v3.0b3711 MOD_NAME"/>
+    <title lang="en_US">OpenBOR v3.0b3711</title>
+    <author name="fantomid" website="http://www.chronocrash.com"/>
+    <version major="3" minor="0" release="r3711" build="01"/>         <!--This programs version-->
+    <description lang="en_US">version 3.0 build 3711
+    </description>
+    <icon src="share/OpenBOR/logo.png"/>
+    <categories>
+      <!-- http://standards.freedesktop.org/menu-spec/latest/apa.html -->
+      <category name="Game">
+        <subcategory name="ArcadeGame"/>
+      </category>
+    </categories>
+  </application>
+</PXML>

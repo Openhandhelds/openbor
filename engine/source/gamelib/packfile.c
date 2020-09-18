@@ -319,7 +319,19 @@ char *casesearch(const char *dir, const char *filepath)
     //if (entry != NULL && entry->d_name != NULL)
     if (entry != NULL)
     {
-        sprintf(fullpath, "%s/%s", dir, entry->d_name);
+        size_t szDir = strlen(dir);
+        size_t szDName = strlen(entry->d_name);
+        char * ptrFullpath = NULL;
+        if(szDir + szDName + 1	< PACKFILE_PATH_MAX)
+        {
+            memcpy(fullpath, dir, szDir);
+            fullpath[szDir] = '/';
+            ptrFullpath = fullpath + (szDir + 1);
+            memcpy(ptrFullpath, entry->d_name, szDName);
+            fullpath[szDir + szDName + 1] = '\0';
+        }
+        else
+            i = 0;
     }
 
     if (closedir(d))

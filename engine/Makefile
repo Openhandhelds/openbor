@@ -136,19 +136,20 @@ endif
 ifdef BUILD_PANDORA
 TARGET 	        = $(VERSION_NAME).elf
 TARGET_FINAL    = $(VERSION_NAME)
-TARGET_PLATFORM = PANDORA
+TARGET_PLATFORM = Pandora
 BUILD_LINUX     = 1
 BUILD_SDL       = 1
 BUILD_GFX       = 1
 BUILD_PTHREAD   = 1
 BUILD_SDL_IO    = 1
 BUILD_TREMOR    = 1
+BUILD_WEBM      = 1
 BUILDING        = 1
-CC  	        = $(PNDDEV)/bin/arm-none-linux-gnueabi-gcc
-INCLUDES        = $(PNDDEV)/include \
-                  $(PNDDEV)/include/SDL
+CC  	        = $(CODEBLOCKS_DATA_DIR)/usr/bin/gcc
+INCLUDES        = $(CODEBLOCKS_DATA_DIR)/usr/include \
+                  $(CODEBLOCKS_DATA_DIR)/usr/include/SDL2
 OBJTYPE         = elf
-LIBRARIES       = $(PNDDEV)/lib
+LIBRARIES       = $(CODEBLOCKS_DATA_DIR)/usr/lib
 ifeq ($(BUILD_PANDORA), 0)
 BUILD_DEBUG     = 1
 endif
@@ -199,7 +200,7 @@ ifdef BUILD_DARWIN
 STRIP           = $(PREFIX)strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_PANDORA
-STRIP 	        = $(PNDDEV)/bin/arm-none-linux-gnueabi-strip $(TARGET) -o $(TARGET_FINAL)
+STRIP 	        = $(CODEBLOCKS_DATA_DIR)usr/bin/strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_WII
 STRIP           = elf2dol $< $@
@@ -320,12 +321,12 @@ SCRIPT          = source/scriptlib/StackedSymbolTable.o                         
                   source/preprocessorlib/pp_parser.o                                                \
                   source/preprocessorlib/pp_expr.o
 SCRIPT_BUILTINS = source/openborscript/commands.o                                                   \
-				  source/openborscript/animation.o                                                  \
-				  source/openborscript/axis.o                                           			\
-				  source/openborscript/binding.o                                           			\
+		  source/openborscript/animation.o                                                  \
+		  source/openborscript/axis.o                                           			\
+		  source/openborscript/binding.o                                           			\
                   source/openborscript/collision_attack.o                                           \
                   source/openborscript/collision_body.o                                             \
-                  source/openborscript/constants.o                                                   \
+                  source/openborscript/constants.o                                                  \
                   source/openborscript/energy_status.o                                             	\
                   source/openborscript/entity.o                                                   	\
                   source/openborscript/index.o                                                      \
@@ -338,7 +339,7 @@ RAND	        = source/randlib/rand32.o
 PNG             = source/pnglib/pngdec.o                                                            \
                   source/pnglib/savepng.o
 SOURCE	        = source/stringptr.o                                                                \
-				  source/utils.o                                                                    \
+		  source/utils.o                                                                    \
                   source/stristr.o																	\
                   source/omath.o
 
@@ -395,7 +396,7 @@ GAME_CONSOLE   += sdl/joysticks.o                                               
                   sdl/sdlport.o                                                                     \
                   sdl/video.o                                                                       \
                   sdl/videocommon.o                                                                 \
-				  sdl/threads.o                                                                     \
+		  sdl/threads.o                                                                     \
                   sdl/menu.o
 endif
 
@@ -413,10 +414,10 @@ endif
 ifdef BUILD_WEBM
 WEBM 	       += source/webmlib/vidplay.o                                                          \
                   source/webmlib/vorbis.o                                                           \
-				  source/webmlib/samplecvt.o                                                        \
+		  source/webmlib/samplecvt.o                                                        \
                   source/webmlib/yuv.o                                                              \
-				  source/webmlib/halloc/halloc.o                                                    \
-				  source/webmlib/nestegg/nestegg.o
+		  source/webmlib/halloc/halloc.o                                                    \
+		  source/webmlib/nestegg/nestegg.o
 endif
 
 
@@ -481,7 +482,7 @@ endif
 
 
 ifdef BUILD_PANDORA
-CFLAGS         += -DLINUX
+CFLAGS         += -DLINUX -DPANDORA
 endif
 
 

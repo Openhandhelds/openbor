@@ -694,3 +694,107 @@ void Array_Check_Size( const char *f_caller, char **array, int new_size, int *cu
     *array = copy;
 }
 
+int iscValidSign(char c) {
+    if(c == '-')
+        return -1;
+    if(c == '+')
+        return 1;
+    return 0;
+}
+
+int32_t iscValidNumber(char c) {
+    if(c >= '0' && c <= '9')
+        return c-'0';
+    return -1;
+}
+
+int isValueOverflow(int32_t value, int32_t sign, int32_t number) {
+
+    int32_t minmax = sign > 0 ? INT32_MAX : INT32_MIN;
+    int32_t signed_value = sign * value;
+    /* use base 10 */
+    if(minmax == INT32_MAX) {
+        if (signed_value < minmax / 10)
+            return 0;
+        else {
+            if (signed_value==minmax / 10) {
+                if (number<=minmax % 10)
+                    return 0;
+            }
+        }
+    }
+    else /* INT32_MIN */
+    {
+        if (signed_value > minmax / 10)
+            return 0;
+        else {
+            if (signed_value == minmax / 10) {
+                if (sign * number >= minmax % 10)
+                    return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+int32_t safe_atoi(char* str, unsigned char* errSeveralSigns, unsigned char* errInvalidNumberFound, unsigned char* errOverflow) {
+    char* itStr = str;
+    int32_t sign = 0, value = 0, number = -1;
+
+    if(errSeveralSigns)
+        *errSeveralSigns = 0;
+    if(errInvalidNumberFound)
+        *errInvalidNumberFound = 0;
+    if(errOverflow)
+        *errOverflow = 0;
+    while(*itStr != '\0') {
+        if(*itStr == ' ') {
+            itStr++;
+            continue;
+        }
+        if(sign != 0 && iscValidSign(*itStr)) {
+            value = sign > 0 ? INT32_MAX : INT32_MIN;
+#ifdef VERBOSE
+            printf("Several signs in the number\n");
+#endif
+            if(errSeveralSigns)
+                *errSeveralSigns = UCHAR_MAX;
+            break;
+        }
+
+        if(sign == 0) {
+            sign = iscValidSign(*itStr);
+            if(sign != 0) {
+                itStr++;
+                continue;
+            }
+        }
+        number = iscValidNumber(*itStr);
+        if(number == -1) {
+            value = 0;
+#ifdef VERBOSE
+            printf("Invalid number found (%ld) !!\n", itStr - str);
+#endif
+            if(errInvalidNumberFound)
+                *errInvalidNumberFound = UCHAR_MAX;
+            break;
+        }
+        if(sign == 0 && number != -1)
+            sign = 1;
+
+        if(isValueOverflow(value, sign, number) == 0) {
+            value = value * 10 + number;
+        }
+        else {
+            value = sign > 0 ? INT32_MAX : INT32_MIN;
+#ifdef VERBOSE
+            printf("Overflow (%ld) !!\n", itStr - str);
+#endif
+            if(errOverflow)
+                *errOverflow = UCHAR_MAX;
+            break;
+        }
+        itStr++;
+    }
+    return sign * value;
+}

@@ -209,11 +209,11 @@ char                *custBkgrds = NULL;
 char                *custLevels = NULL;
 char                *custModels = NULL;
 char                rush_names[2][MAX_NAME_LEN];
-char				skipselect[MAX_PLAYERS][MAX_NAME_LEN];
+char                skipselect[MAX_PLAYERS][MAX_NAME_LEN];
 char                branch_name[MAX_NAME_LEN + 1];  // Used for branches
 char                allowselect_args[MAX_ALLOWSELECT_LEN]; // stored allowselect players
-int					useSave = 0;
-int					useSet = -1;
+int                 useSave = 0;
+int                 useSet = -1;
 unsigned char       pal[MAX_PAL_SIZE] = {""};
 int                 blendfx[MAX_BLENDINGS] = {0, 1, 0, 0, 0, 0};
 char                blendfx_is_set = 0;
@@ -231,14 +231,14 @@ int                 current_set = 0;
 int                 current_level = 0;
 int                 current_stage = 1;
 
-int					timevar;
+int                 timevar;
 float               bgtravelled;
 float               vbgtravelled;
 int                 traveltime;
 int                 texttime;
-int					timetoshow;
+int                 timetoshow;
 int                 is_total_timeover = 0;
-int					showgo;
+int                 showgo;
 float               advancex;
 float               advancey;
 
@@ -247,12 +247,12 @@ float               scrolldy;                       // advancey ................
 float               scrollminz;                     // Limit level z-scroll
 float               scrollmaxz;
 float               blockade;                    // Limit x scroll back
-float				scrollminx;
-float				scrollmaxx;
+float               scrollminx;
+float               scrollmaxx;
 
 s_lasthit           lasthit;  //Last collision variables. 2013-12-15, moved to struct.
 
-int					combodelay = GAME_SPEED / 2;		// avoid annoying 112112... infinite combo
+int                 combodelay = GAME_SPEED / 2;        // avoid annoying 112112... infinite combo
 
 //Use for gfx_shadow
 s_axis_plane_vertical_int light = {   .x = 128,
@@ -268,21 +268,21 @@ u64 freeram = 0;
 u32 interval = 0;
 //extern u64 seed;
 
-int                 SAMPLE_GO			= -1;
-int                 SAMPLE_BEAT			= -1;
-int                 SAMPLE_BLOCK		= -1;
-int                 SAMPLE_INDIRECT		= -1;
-int                 SAMPLE_GET			= -1;
-int                 SAMPLE_GET2			= -1;
-int                 SAMPLE_FALL			= -1;
-int                 SAMPLE_JUMP			= -1;
-int                 SAMPLE_PUNCH		= -1;
-int                 SAMPLE_1UP			= -1;
-int                 SAMPLE_TIMEOVER		= -1;
-int                 SAMPLE_BEEP			= -1;
-int                 SAMPLE_BEEP2		= -1;
-int                 SAMPLE_BIKE			= -1;
-int                 SAMPLE_PAUSE		= -1;
+int                 SAMPLE_GO           = -1;
+int                 SAMPLE_BEAT         = -1;
+int                 SAMPLE_BLOCK        = -1;
+int                 SAMPLE_INDIRECT     = -1;
+int                 SAMPLE_GET          = -1;
+int                 SAMPLE_GET2         = -1;
+int                 SAMPLE_FALL         = -1;
+int                 SAMPLE_JUMP         = -1;
+int                 SAMPLE_PUNCH        = -1;
+int                 SAMPLE_1UP          = -1;
+int                 SAMPLE_TIMEOVER     = -1;
+int                 SAMPLE_BEEP         = -1;
+int                 SAMPLE_BEEP2        = -1;
+int                 SAMPLE_BIKE         = -1;
+int                 SAMPLE_PAUSE        = -1;
 
 // 2016-11-01
 // Caskey, Damon V.
@@ -484,12 +484,12 @@ int                 follows[MAX_FOLLOWS] =
 // background cache to speed up in-game menus
 #ifdef CACHE_BACKGROUNDS
 s_screen           *bg_cache[MAX_CACHED_BACKGROUNDS] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-unsigned char		bg_palette_cache[MAX_CACHED_BACKGROUNDS][MAX_PAL_SIZE];
+unsigned char       bg_palette_cache[MAX_CACHED_BACKGROUNDS][MAX_PAL_SIZE];
 #endif
 
 s_debug_xy_msg      debug_xy_msg;
 int                 cameratype          = 0;
-int					defaultmaxplayers	= 2;
+int                 defaultmaxplayers   = 2;
 
 u32                 go_time             = 0;
 u32                 _time               = 0;
@@ -499,53 +499,53 @@ s_slow_motion       slowmotion          = { .toggle     = SLOW_MOTION_OFF,
                                             .duration   = 2};
 int                 disablelog          = 0;
 int                 currentspawnplayer  = 0;
-int					ent_list_size		= 0;
+int                 ent_list_size       = 0;
 int                 PLAYER_MIN_Z        = 160;
 int                 PLAYER_MAX_Z        = 232;
 int                 BGHEIGHT            = 160;
-int                 MAX_WALL_HEIGHT     = 1000;					// Max wall height that an entity can be spawned on
+int                 MAX_WALL_HEIGHT     = 1000;                 // Max wall height that an entity can be spawned on
 int                 saveslot            = 0;
 int                 current_palette     = 0;
 int                 fade                = 24;
 int                 credits             = 0;
-int                 gosound             = 0;					// Used to prevent go sound playing too frequently,
+int                 gosound             = 0;                    // Used to prevent go sound playing too frequently,
 int                 musicoverlap        = 0;
 int                 colorbars           = 0;
 int                 current_spawn       = 0;
 int                 level_completed     = 0;
 int                 level_completed_defeating_boss     = 0;
-int                 nojoin              = 0;					// dont allow new hero to join in, use "Please Wait" instead of "Select Hero"
+int                 nojoin              = 0;                    // dont allow new hero to join in, use "Please Wait" instead of "Select Hero"
 int                 groupmin            = 0;
-int					groupmax            = 0;
-int                 selectScreen        = 0;					// Flag to determine if at select screen (used for setting animations)
-int					titleScreen			= 0;
-int					menuScreen			= 0;
-int					enginecreditsScreen		= 0;								// CRxTRDude - Flag to determine if the credits for the engine is shown.
-int					hallOfFame			= 0;
-int					optionsMenu			= 0;
-int					newgameMenu			= 0;
-int					loadgameMenu		= 0;
-int					controloptionsMenu	= 0;
-int					videooptionsMenu	= 0;
-int					soundoptionsMenu	= 0;
-int					systemoptionsMenu	= 0;
-int					startgameMenu		= 0;
-int					gameOver			= 0;
-int					showComplete		= 0;
-char				*currentScene		= NULL;
-int                 tospeedup           = 0;          			// If set will speed the level back up after a boss hits the ground
-int                 reached[MAX_PLAYERS]          = {0, 0, 0, 0};			// Used with TYPE_ENDLEVEL to determine which players have reached the point //4player
-int                 noslowfx			= 0;           			// Flag to determine if sound speed when hitting opponent slows or not
-int                 equalairpause 		= 0;         			// If set to 1, there will be no extra pausetime for players who hit multiple enemies in midair
-int                 hiscorebg			= 0;					// If set to 1, will look for a background image to display at the highscore screen
-int                 completebg			= 0;           			// If set to 1, will look for a background image to display at the showcomplete screen
+int                 groupmax            = 0;
+int                 selectScreen        = 0;                    // Flag to determine if at select screen (used for setting animations)
+int                 titleScreen         = 0;
+int                 menuScreen          = 0;
+int                 enginecreditsScreen     = 0;                                // CRxTRDude - Flag to determine if the credits for the engine is shown.
+int                 hallOfFame          = 0;
+int                 optionsMenu         = 0;
+int                 newgameMenu         = 0;
+int                 loadgameMenu        = 0;
+int                 controloptionsMenu  = 0;
+int                 videooptionsMenu    = 0;
+int                 soundoptionsMenu    = 0;
+int                 systemoptionsMenu   = 0;
+int                 startgameMenu       = 0;
+int                 gameOver            = 0;
+int                 showComplete        = 0;
+char                *currentScene       = NULL;
+int                 tospeedup           = 0;                    // If set will speed the level back up after a boss hits the ground
+int                 reached[MAX_PLAYERS]          = {0, 0, 0, 0};           // Used with TYPE_ENDLEVEL to determine which players have reached the point //4player
+int                 noslowfx            = 0;                    // Flag to determine if sound speed when hitting opponent slows or not
+int                 equalairpause       = 0;                    // If set to 1, there will be no extra pausetime for players who hit multiple enemies in midair
+int                 hiscorebg           = 0;                    // If set to 1, will look for a background image to display at the highscore screen
+int                 completebg          = 0;                    // If set to 1, will look for a background image to display at the showcomplete screen
 s_loadingbar        loadingbg[2] = {{0, 0, {0, 0}, {0, 0}, 0, 0}, {0, 0, {0, 0}, {0, 0}, 0, 0}}; // If set to 1, will look for a background image to display at the loading screen
-int					loadingmusic        = 0;
-int                 unlockbg            = 0;         			// If set to 1, will look for a different background image after defeating the game
+int                 loadingmusic        = 0;
+int                 unlockbg            = 0;                    // If set to 1, will look for a different background image after defeating the game
 int                 _pause              = 0;
 int                 goto_mainmenu_flag  = 0;
-int					nofadeout			= 0;
-int					nosave				= 0;
+int                 nofadeout           = 0;
+int                 nosave              = 0;
 int                 nopause             = 0;                    // OX. If set to 1 , pausing the game will be disabled.
 int                 noscreenshot        = 0;                    // OX. If set to 1 , taking screenshots is disabled.
 int                 endgame             = 0;
@@ -557,22 +557,22 @@ int                 keyscriptrate       = 0;
 int                 creditscheat        = 0;
 int                 healthcheat         = 0;
 int                 showtimeover        = 0;
-int                 sameplayer          = 0;            		// 7-1-2005  flag to determine if players can use the same character
-int                 PLAYER_LIVES        = 3;					// 7-1-2005  default setting for Lives
-int                 CONTINUES           = 5;					// 7-1-2005  default setting for continues
-int                 colourselect		= 0;					// 6-2-2005 Colour select is optional
-int                 autoland			= 0;					// Default set to no autoland and landing is valid with u j combo
-int                 ajspecial			= 0;					// Flag to determine if holding down attack and pressing jump executes special
-int                 nolost				= 0;					// variable to control if drop weapon when grab a enemy by tails
-int                 nocost				= 0;					// If set, special will not cost life unless an enemy is hit
-int                 mpstrict			= 0;					// If current system will check all animation's energy cost when set new animations
-int                 magic_type			= 0;					// use for restore mp by time by tails
-entity             *textbox				= NULL;
-entity             *smartbomber			= NULL;
-entity				*stalker				= NULL;					// an enemy (usually) tries to go behind the player
-entity				*firstplayer			= NULL;
-int					stalking			= 0;
-int					nextplan			= 0;
+int                 sameplayer          = 0;                    // 7-1-2005  flag to determine if players can use the same character
+int                 PLAYER_LIVES        = 3;                    // 7-1-2005  default setting for Lives
+int                 CONTINUES           = 5;                    // 7-1-2005  default setting for continues
+int                 colourselect        = 0;                    // 6-2-2005 Colour select is optional
+int                 autoland            = 0;                    // Default set to no autoland and landing is valid with u j combo
+int                 ajspecial           = 0;                    // Flag to determine if holding down attack and pressing jump executes special
+int                 nolost              = 0;                    // variable to control if drop weapon when grab a enemy by tails
+int                 nocost              = 0;                    // If set, special will not cost life unless an enemy is hit
+int                 mpstrict            = 0;                    // If current system will check all animation's energy cost when set new animations
+int                 magic_type          = 0;                    // use for restore mp by time by tails
+entity             *textbox             = NULL;
+entity             *smartbomber         = NULL;
+entity              *stalker                = NULL;                 // an enemy (usually) tries to go behind the player
+entity              *firstplayer            = NULL;
+int                 stalking            = 0;
+int                 nextplan            = 0;
 int                 plife[MAX_PLAYERS][2]         = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}; // Used for customizable player lifebar
 int                 plifeX[MAX_PLAYERS][3]        = {{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}}; // Used for customizable player lifebar 'x'
 int                 plifeN[MAX_PLAYERS][3]        = {{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}}; // Used for customizable player lifebar number of lives
@@ -592,7 +592,7 @@ char                currentmusic[MAX_BUFFER_LEN]    = {""};
 float               musicfade[2]        = {0, 0};
 int                 musicloop           = 0;
 u32                 musicoffset         = 0;
-int					alwaysupdate		= 0; //execute update/updated scripts whenever it has a chance
+int                 alwaysupdate        = 0; //execute update/updated scripts whenever it has a chance
 
 s_barstatus loadingbarstatus =
 {
@@ -645,100 +645,100 @@ s_barstatus mpbarstatus =
     .colourtable    = &mpcolourtable
 };
 
-int                 timeloc[6]			= {0, 0, 0, 0, 0, -1};		// Used for customizable timeclock location/size
-int                 timeicon			= -1;
+int                 timeloc[6]          = {0, 0, 0, 0, 0, -1};      // Used for customizable timeclock location/size
+int                 timeicon            = -1;
 int                 timeicon_offsets[2] = {0, 0};
 char                timeicon_path[MAX_BUFFER_LEN]  = {""};
-int                 bgicon   			= -1;
-int                 bgicon_offsets[3]	= {0, 0, 0};
+int                 bgicon              = -1;
+int                 bgicon_offsets[3]   = {0, 0, 0};
 char                bgicon_path[MAX_BUFFER_LEN]    = {""};
-int                 olicon    			= -1;
-int                 olicon_offsets[3]	= {0, 0, 0};
+int                 olicon              = -1;
+int                 olicon_offsets[3]   = {0, 0, 0};
 char                olicon_path[MAX_BUFFER_LEN]    = {""};
 int                 elife[4][2]         = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}; // Used for customizable enemy lifebar
 int                 ename[4][3]         = {{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}}; // Used for customizable enemy name
 int                 eicon[4][2]         = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}; // Used for customizable enemy icon
-int                 scomplete[6]		= {0, 0, 0, 0, 0, 0};		// Used for customizable Stage # Complete
+int                 scomplete[6]        = {0, 0, 0, 0, 0, 0};       // Used for customizable Stage # Complete
 int                 cbonus[10]          = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Used for customizable clear bonus
 int                 lbonus[10]          = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Used for customizable life bonus
 int                 rbonus[10]          = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Used for customizable rush bonus
 int                 tscore[10]          = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Used for customizable total score
 int                 scbonuses[4]        = {10000, 1000, 100, 0};//Stage complete bonus multipliers
 int                 showrushbonus       = 0;
-int                 noshare				= 0;					// Used for when you want to keep p1 & p2 credits separate
-int                 nodropen			= 0;					// Drop or not when spawning is now a modder option
-int					nodropspawn			= 0;					// don't spawn from the sky if the modder doesn't set it
-int                 gfx_x_offset		= 0;                    //2011_04_03, DC: Enable X offset adjustment by modders.
-int                 gfx_y_offset		= 0;
+int                 noshare             = 0;                    // Used for when you want to keep p1 & p2 credits separate
+int                 nodropen            = 0;                    // Drop or not when spawning is now a modder option
+int                 nodropspawn         = 0;                    // don't spawn from the sky if the modder doesn't set it
+int                 gfx_x_offset        = 0;                    //2011_04_03, DC: Enable X offset adjustment by modders.
+int                 gfx_y_offset        = 0;
 int                 gfx_y_offset_adj    = 0;                    //2011_04_03, DC: Enable Y offset adjustment by modders.
 
 // 2011/10/22 UT: temporary solution for custom viewport
-int					viewportx			= 0;
-int					viewporty			= 0;
-int					viewportw			= 0;
-int					viewporth			= 0;
+int                 viewportx           = 0;
+int                 viewporty           = 0;
+int                 viewportw           = 0;
+int                 viewporth           = 0;
 
 
-int                 timeleft			= 0;
+int                 timeleft            = 0;
 int                 oldtime             = 0;                    // One second back from time left.
-int                 holez				= 0;					// Used for setting spawn points
-int                 allow_secret_chars	= 0;
-unsigned int        lifescore			= 50000;				// Number of points needed to earn a 1-up
-unsigned int        credscore			= 0;					// Number of points needed to earn a credit
-int                 mpblock				= 0;					// Take chip damage from health or MP first?
-int                 blockratio			= 0;					// Take half-damage while blocking?
-int                 nochipdeath			= 0;					// Prevents entities from dying due to chip damage (damage while blocking)
-int                 noaircancel         = 0;					// Now, you can make jumping attacks uncancellable!
+int                 holez               = 0;                    // Used for setting spawn points
+int                 allow_secret_chars  = 0;
+unsigned int        lifescore           = 50000;                // Number of points needed to earn a 1-up
+unsigned int        credscore           = 0;                    // Number of points needed to earn a credit
+int                 mpblock             = 0;                    // Take chip damage from health or MP first?
+int                 blockratio          = 0;                    // Take half-damage while blocking?
+int                 nochipdeath         = 0;                    // Prevents entities from dying due to chip damage (damage while blocking)
+int                 noaircancel         = 0;                    // Now, you can make jumping attacks uncancellable!
 int                 nomaxrushreset[5]   = {0, 0, 0, 0, 0};
-int			        mpbartext[4]		= { -1, 0, 0, 0};			// Array for adjusting MP status text (font, Xpos, Ypos, Display type).
-int			        lbartext[4]			= { -1, 0, 0, 0};			// Array for adjusting HP status text (font, Xpos, Ypos, Display type).
-int                 pmp[4][2]			= {{0, 0}, {0, 0}, {0, 0}, {0, 0}}; // Used for customizable player mpbar
-int                 spdirection[4]		= {1, 0, 1, 0};			// Used for Select Player Direction for select player screen
-int                 bonus				= 0;					// Used for unlocking Bonus difficulties
-int                 versusdamage		= 2;					// Used for setting mode. (ability to hit other players)
-int                 z_coords[3]			= {0, 0, 0};				// Used for setting customizable walkable area
-int                 rush[6]				= {0, 2, 3, 3, 3, 3};
-int                 pauseoffset[7]  	= {0, 1, 0, 0, 3, 0, 0};		// Used for customizable pause menu location (font0, font1, xpos, ypos, font_pause, xpos_pause, ypos_pause)
-int                 color_black			= 0;
-int                 color_red			= 0;
-int                 color_orange		= 0;
-int                 color_yellow		= 0;
-int                 color_white			= 0;
-int                 color_blue			= 0;
-int                 color_green			= 0;
-int                 color_pink			= 0;
-int                 color_purple		= 0;
-int                 color_magic			= 0;
-int                 color_magic2		= 0;
+int                 mpbartext[4]        = { -1, 0, 0, 0};           // Array for adjusting MP status text (font, Xpos, Ypos, Display type).
+int                 lbartext[4]         = { -1, 0, 0, 0};           // Array for adjusting HP status text (font, Xpos, Ypos, Display type).
+int                 pmp[4][2]           = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}; // Used for customizable player mpbar
+int                 spdirection[4]      = {1, 0, 1, 0};         // Used for Select Player Direction for select player screen
+int                 bonus               = 0;                    // Used for unlocking Bonus difficulties
+int                 versusdamage        = 2;                    // Used for setting mode. (ability to hit other players)
+int                 z_coords[3]         = {0, 0, 0};                // Used for setting customizable walkable area
+int                 rush[6]             = {0, 2, 3, 3, 3, 3};
+int                 pauseoffset[7]      = {0, 1, 0, 0, 3, 0, 0};        // Used for customizable pause menu location (font0, font1, xpos, ypos, font_pause, xpos_pause, ypos_pause)
+int                 color_black         = 0;
+int                 color_red           = 0;
+int                 color_orange        = 0;
+int                 color_yellow        = 0;
+int                 color_white         = 0;
+int                 color_blue          = 0;
+int                 color_green         = 0;
+int                 color_pink          = 0;
+int                 color_purple        = 0;
+int                 color_magic         = 0;
+int                 color_magic2        = 0;
 int                 lifebarfgalpha      = 0;
 int                 lifebarbgalpha      = 2;
-int                 shadowsprites[6]	= { -1, -1, -1, -1, -1, -1};
-int                 gosprite			= -1;
-int                 golsprite			= -1;
-//int                 holesprite			= -1;
-int                 videoMode			= 0;
-int                 scoreformat			= 0;					// If set fill score values with 6 Zeros
+int                 shadowsprites[6]    = { -1, -1, -1, -1, -1, -1};
+int                 gosprite            = -1;
+int                 golsprite           = -1;
+//int                 holesprite            = -1;
+int                 videoMode           = 0;
+int                 scoreformat         = 0;                    // If set fill score values with 6 Zeros
 
 // Funny neon lights
 unsigned char       neontable[MAX_PAL_SIZE];
-unsigned int        neon_time			= 0;
+unsigned int        neon_time           = 0;
 
-int                 panel_width			= 0;
-int                 panel_height		= 0;
-int                 frontpanels_loaded	= 0;
+int                 panel_width         = 0;
+int                 panel_height        = 0;
+int                 frontpanels_loaded  = 0;
 
-unsigned int        sprites_loaded		= 0;
-unsigned int        anims_loaded		= 0;
+unsigned int        sprites_loaded      = 0;
+unsigned int        anims_loaded        = 0;
 
-unsigned int        models_loaded		= 0;
-unsigned int        models_cached		= 0;
+unsigned int        models_loaded       = 0;
+unsigned int        models_cached       = 0;
 
 entity            **ent_list;
 entity            **ent_stack; //temporary list, reference only
-int					ent_stack_size = 0;
+int                 ent_stack_size = 0;
 entity             *self;
-int                 ent_count			= 0;					// log count of entites
-int                 ent_max				= 0;
+int                 ent_count           = 0;                    // log count of entites
+int                 ent_max             = 0;
 
 s_player            player[MAX_PLAYERS];
 u64                 bothkeys, bothnewkeys;
@@ -756,7 +756,7 @@ Script level_script;    //execute when level start
 Script endlevel_script; //execute when level finished
 Script update_script;   //execute when ingame update
 Script updated_script;  //execute when ingame update finished
-Script loading_script;	// in loading screen
+Script loading_script;  // in loading screen
 Script key_script_all;  //keyscript for all players
 Script timetick_script; //time tick script.
 
@@ -1214,7 +1214,7 @@ void unfrozen(entity *e)
 int is_frozen(entity *e)
 {
     return ((textbox && e->modeldata.type != TYPE_TEXTBOX) ||
-						 (smartbomber && e != smartbomber && e->modeldata.type != TYPE_TEXTBOX) || (self->frozen && self->freezetime > _time));
+                         (smartbomber && e != smartbomber && e->modeldata.type != TYPE_TEXTBOX) || (self->frozen && self->freezetime > _time));
 }
 
 // This method is called once when the engine is shutting down, do not use it multiple times
@@ -1924,7 +1924,7 @@ void execute_ondoattack_script(entity *ent, entity *other, s_collision_attack *a
         //clear to save variant space
         ScriptVariant_Clear(&tempvar);
         Script_Set_Local_Variant(cs, "self",        &tempvar);
-        Script_Set_Local_Variant(cs, "other",		&tempvar);
+        Script_Set_Local_Variant(cs, "other",       &tempvar);
         Script_Set_Local_Variant(cs, "damage",      &tempvar);
         Script_Set_Local_Variant(cs, "drop",        &tempvar);
         Script_Set_Local_Variant(cs, "attacktype",  &tempvar);
@@ -1932,9 +1932,9 @@ void execute_ondoattack_script(entity *ent, entity *other, s_collision_attack *a
         Script_Set_Local_Variant(cs, "guardcost",   &tempvar);
         Script_Set_Local_Variant(cs, "jugglecost",  &tempvar);
         Script_Set_Local_Variant(cs, "pauseadd",    &tempvar);
-        Script_Set_Local_Variant(cs, "which",		&tempvar);
-        Script_Set_Local_Variant(cs, "attackid",	&tempvar);
-        Script_Set_Local_Variant(cs, "tag",	        &tempvar);
+        Script_Set_Local_Variant(cs, "which",       &tempvar);
+        Script_Set_Local_Variant(cs, "attackid",    &tempvar);
+        Script_Set_Local_Variant(cs, "tag",         &tempvar);
     }
 }
 
@@ -2801,10 +2801,10 @@ int saveScriptFile()
         }
         /*
         if(model_cache[i].model) {
-        	_writeconst("\tloadmodel(\"")
-        	_writestr(model_cache[i].name)
-        	sprintf(tmpvalue, "\",%d,%d);\n", model_cache[i].model->unload, model_cache[i].selectable);
-        	_writetmp
+            _writeconst("\tloadmodel(\"")
+            _writestr(model_cache[i].name)
+            sprintf(tmpvalue, "\",%d,%d);\n", model_cache[i].model->unload, model_cache[i].selectable);
+            _writetmp
         }*/
     }
     _writeconst("}\n");
@@ -2975,13 +2975,20 @@ int isNumeric(char *text)
 int getValidInt(char *text, char *file, char *cmd)
 {
     static const char *WARN_NUMBER_EXPECTED = "WARNING: %s tries to load a non-numeric value at %s, where a number is expected!\nerroneus string: %s\n";
+    static const char *WARN_NUMBER_OVERFLOW = "WARNING: %s tries to load a numeric value at %s but overflow occurred!\nerroneus string: %s not in [%d, %d]\n";
     if(!text || !*text)
     {
         return 0;
     }
     if(isNumeric(text))
     {
-        return atoi(text);
+        unsigned char errSeveralSigns, errInvalidNumberFound, errOverflow;
+        int returnInt = safe_atoi(text, &errSeveralSigns, &errInvalidNumberFound, &errOverflow);
+        if(errSeveralSigns == UCHAR_MAX || errInvalidNumberFound == UCHAR_MAX)
+            printf(WARN_NUMBER_EXPECTED, file, cmd, text);
+        if(errOverflow == UCHAR_MAX)
+            printf(WARN_NUMBER_OVERFLOW, file, cmd, text, INT32_MIN, INT32_MAX);
+        return returnInt;
     }
     else
     {
@@ -4504,21 +4511,21 @@ void load_menu_txt()
 int load_special_sounds()
 {
     sound_unload_all_samples();
-    SAMPLE_GO		= sound_load_sample("data/sounds/go.wav",		packfile,	0);
-    SAMPLE_BEAT		= sound_load_sample("data/sounds/beat1.wav",	packfile,	0);
-    SAMPLE_BLOCK	= sound_load_sample("data/sounds/block.wav",	packfile,	0);
-    SAMPLE_FALL		= sound_load_sample("data/sounds/fall.wav",		packfile,	0);
-    SAMPLE_GET		= sound_load_sample("data/sounds/get.wav",		packfile,	0);
-    SAMPLE_GET2		= sound_load_sample("data/sounds/money.wav",	packfile,	0);
-    SAMPLE_JUMP		= sound_load_sample("data/sounds/jump.wav",		packfile,	0);
-    SAMPLE_INDIRECT	= sound_load_sample("data/sounds/indirect.wav",	packfile,	0);
-    SAMPLE_PUNCH	= sound_load_sample("data/sounds/punch.wav",	packfile,	0);
-    SAMPLE_1UP		= sound_load_sample("data/sounds/1up.wav",		packfile,	0);
-    SAMPLE_TIMEOVER = sound_load_sample("data/sounds/timeover.wav", packfile,	0);
-    SAMPLE_BEEP		= sound_load_sample("data/sounds/beep.wav",		packfile,	0);
-    SAMPLE_BEEP2	= sound_load_sample("data/sounds/beep2.wav",	packfile,	0);
-    SAMPLE_PAUSE	= sound_load_sample("data/sounds/pause.wav",	packfile,	0);
-    SAMPLE_BIKE		= sound_load_sample("data/sounds/bike.wav",		packfile,	0);
+    SAMPLE_GO       = sound_load_sample("data/sounds/go.wav",       packfile,   0);
+    SAMPLE_BEAT     = sound_load_sample("data/sounds/beat1.wav",    packfile,   0);
+    SAMPLE_BLOCK    = sound_load_sample("data/sounds/block.wav",    packfile,   0);
+    SAMPLE_FALL     = sound_load_sample("data/sounds/fall.wav",     packfile,   0);
+    SAMPLE_GET      = sound_load_sample("data/sounds/get.wav",      packfile,   0);
+    SAMPLE_GET2     = sound_load_sample("data/sounds/money.wav",    packfile,   0);
+    SAMPLE_JUMP     = sound_load_sample("data/sounds/jump.wav",     packfile,   0);
+    SAMPLE_INDIRECT = sound_load_sample("data/sounds/indirect.wav", packfile,   0);
+    SAMPLE_PUNCH    = sound_load_sample("data/sounds/punch.wav",    packfile,   0);
+    SAMPLE_1UP      = sound_load_sample("data/sounds/1up.wav",      packfile,   0);
+    SAMPLE_TIMEOVER = sound_load_sample("data/sounds/timeover.wav", packfile,   0);
+    SAMPLE_BEEP     = sound_load_sample("data/sounds/beep.wav",     packfile,   0);
+    SAMPLE_BEEP2    = sound_load_sample("data/sounds/beep2.wav",    packfile,   0);
+    SAMPLE_PAUSE    = sound_load_sample("data/sounds/pause.wav",    packfile,   0);
+    SAMPLE_BIKE     = sound_load_sample("data/sounds/bike.wav",     packfile,   0);
 
     if ( SAMPLE_PAUSE < 0 ) SAMPLE_PAUSE = SAMPLE_BEEP2;
     if(SAMPLE_GO < 0 || SAMPLE_BEAT < 0 || SAMPLE_BLOCK < 0 ||
@@ -35309,7 +35316,7 @@ void savelevelinfo()
         save->pSpawnmp[i] = player[i].spawnmp;
         save->pWeapnum[i] = player[i].weapnum;
         save->pColourmap[i] = player[i].colourmap;
-        strncpy(save->pName[i], player[i].name, MAX_NAME_LEN);
+        safe_strncpy(save->pName[i], player[i].name, MAX_NAME_LEN);
     }
     save->credits = credits;
     save->level = current_level;
@@ -35434,10 +35441,10 @@ int playlevel(char *filename)
                     credits = 0;
                 }
                 if (player[i].ent)
-				{
-					kill_entity(player[i].ent);
-					player[i].ent = NULL;
-				}
+                {
+                    kill_entity(player[i].ent);
+                    player[i].ent = NULL;
+                }
                 //self = player[i].ent;
                 //player_die();
             }
@@ -37957,7 +37964,7 @@ void menu_options_video()
 #ifdef ANDROID
         if(savedata.hwscale == 0)
 #else
-		if(savedata.fullscreen)
+        if(savedata.fullscreen)
 #endif
         {
             _menutext((selector == 5), col2, 2, Tr("Automatic"));
@@ -38259,7 +38266,7 @@ void menu_options_video()
                     savedata.hwfilter = 0;
                 }
                 video_set_mode(videomodes);
-				break;
+                break;
             case 7:
                 if(!savedata.fullscreen && savedata.hwscale < 2.0)
                 {
@@ -38276,7 +38283,7 @@ void menu_options_video()
                 }
                 savedata.swfilter = videomodes.filter;
                 memset(pDeltaBuffer, 0x00, 1244160);
-				video_set_mode(videomodes);
+                video_set_mode(videomodes);
                 break;
             case 8:
                 video_stretch((savedata.stretch ^= 1));
