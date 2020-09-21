@@ -618,7 +618,7 @@ static void drawBGMPlayer()
 
 	if(!bgmPlay) bgmCurrent = dListCurrentPosition+dListScrollPosition;
 	if(filename_len < 24)
-		safe_strncpy(bgmListing, filelist[bgmCurrent].filename, strlen(filelist[bgmCurrent].filename) - 4);
+		safe_strncpy(bgmListing, filelist[bgmCurrent].filename, filename_len);
 	else
 		safe_strncpy(bgmListing, filelist[bgmCurrent].filename, 24);
 	if(!sound_query_music(a1, t1))

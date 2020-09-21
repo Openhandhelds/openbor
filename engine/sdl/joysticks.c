@@ -495,7 +495,7 @@ char* PANDORA_GetKeyName(int keycode)
 #ifdef SDL2
 	else return (char*)SDL_GetScancodeName(keycode);
 #else
-	else return (char*)SDL_GetScancodeName(keycode);
+	else return (char*)SDL_GetKeyName(keycode);
 #endif
 }
 #endif
