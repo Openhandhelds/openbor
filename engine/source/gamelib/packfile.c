@@ -319,7 +319,22 @@ char *casesearch(const char *dir, const char *filepath)
     //if (entry != NULL && entry->d_name != NULL)
     if (entry != NULL)
     {
-        sprintf(fullpath, "%s/%s", dir, entry->d_name);
+        char path[PACKFILE_PATH_MAX];
+        int csnp = -1;
+        csnp = snprintf(path, PACKFILE_PATH_MAX, "%s/", dir);
+        if(csnp >=0 && csnp < PACKFILE_PATH_MAX)
+        {
+            csnp = -1;
+            if(strlen(entry->d_name) + csnp < PACKFILE_PATH_MAX)
+                csnp = snprintf(fullpath, PACKFILE_PATH_MAX, "%s%s", path, entry->d_name);
+            
+            if(csnp < 0)
+            {
+                /* TODO Message */
+                i = 0;
+            }
+            
+        }
     }
 
     if (closedir(d))
