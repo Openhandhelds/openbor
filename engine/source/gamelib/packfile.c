@@ -277,6 +277,7 @@ static char *slashfwd(const char *sz)
 #ifdef LINUX
 char *casesearch(const char *dir, const char *filepath)
 {
+    static const char *WARN_TOO_LONG_PATH = "WARNING: can't build the fullpath with %s and %s; the required size is %d bytes and the fullpath is %d bytes\n";
     DIR *d;
     struct dirent *entry;;
     char filename[PACKFILE_PATH_MAX] = {""}, *rest_of_path;
@@ -330,7 +331,7 @@ char *casesearch(const char *dir, const char *filepath)
             
             if(csnp < 0)
             {
-                /* TODO Message */
+                printf(WARN_TOO_LONG_PATH, path, entry->d_name, strlen(entry->d_name) + csnp, PACKFILE_PATH_MAX);
                 i = 0;
             }
             
