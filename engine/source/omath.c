@@ -132,7 +132,7 @@ double2 Mul222(double2 a, double2 b)
 double Center(double x)
 {
 	if (-0x1.7137449123ef5p-26 <= x && x <= +0x1.7137449123ef5p-26)
-		return -0x1p-1022 < x && x < +0x1p-1022
+		return -Tiny < x && x < +Tiny
 			// Generate underflow and inexact and return x.
 			?  x - x*x
 			// Generate inexact and return x.
@@ -655,7 +655,7 @@ double aatan(double x)
 				if (x < -0x1.d12ed0af1a27fp-27)
 					return atani0(x);
 				else
-					if (x <= -0x1p-1022)
+					if (x <= -Tiny)
 						// Generate inexact and return x.
 						return (Tiny + 1) * x;
 					else
@@ -668,7 +668,7 @@ double aatan(double x)
 		if (x <= +1)
 			if (x <= +.5)
 				if (x <= +0x1.d12ed0af1a27fp-27)
-					if (x < +0x1p-1022)
+					if (x < +Tiny)
 						if (x == 0)
 							return x;
 						else
