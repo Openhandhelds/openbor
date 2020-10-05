@@ -258,6 +258,9 @@ function pandora {
         mkdir ./releases/PANDORA/share/OpenBOR
         mkdir ./releases/PANDORA/share/OpenBOR/previews
       fi
+      if test ! -e ./releases/PANDORA/bin/$SHORT_VERSION ; then
+        mkdir ./releases/PANDORA/bin/$SHORT_VERSION
+      fi
       mv OpenBOR ./releases/PANDORA/bin/$SHORT_VERSION/
       mv ./releases/COMPILING.txt ./releases/PANDORA/
       mv ./releases/LICENSE.txt ./releases/PANDORA/
@@ -267,7 +270,7 @@ function pandora {
       cp ../tools/pandora/PXML.xml ./releases/PANDORA/
       cp ../tools/pandora/scripts/* ./releases/PANDORA/scripts/
       cp -R $CODEBLOCKS_DATA_DIR/usr/share/X11 ./releases/PANDORA/share/
-      cd releases//PANDORA/lib
+      cd releases/PANDORA/lib
       $CODEBLOCKS_DATA_DIR/copy_libs.sh ../bin/$SHORT_VERSION/OpenBOR
       cd -
     fi
