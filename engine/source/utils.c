@@ -694,3 +694,133 @@ void Array_Check_Size( const char *f_caller, char **array, int new_size, int *cu
     *array = copy;
 }
 
+int iscValidSign(char c) {
+    if(c == '-')
+        return -1;
+    if(c == '+')
+        return 1;
+    return 0;
+}
+
+int iscDecimalSeparator(char c) {
+    if(c == '.')
+        return 1;
+    if(c == ',')
+        return 1;
+    return 0;
+}
+
+int32_t iscValidNumber(char c) {
+    if(c >= '0' && c <= '9')
+        return c-'0';
+    return -1;
+}
+
+int isValueOverflow(int32_t value, int32_t sign, int32_t number) {
+
+    int32_t minmax = sign > 0 ? INT32_MAX : INT32_MIN;
+    int32_t signed_value = sign * value;
+    /* use base 10 */
+    if(minmax == INT32_MAX) {
+        if (signed_value < minmax / 10)
+            return 0;
+        else {
+            if (signed_value==minmax / 10) {
+                if (number<=minmax % 10)
+                    return 0;
+            }
+        }
+    }
+    else /* INT32_MIN */
+    {
+        if (signed_value > minmax / 10)
+            return 0;
+        else {
+            if (signed_value == minmax / 10) {
+                if (sign * number >= minmax % 10)
+                    return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+int32_t safe_atoi(char* str, unsigned char* errDecimalSep, unsigned char* errSeveralSigns, unsigned char* errInvalidNumberFound, unsigned char* errOverflow) {
+    char* itStr = str;
+    int32_t sign = 0, value = 0, number = -1, decimal = 0;
+
+    if(errDecimalSep)
+        *errDecimalSep = 0;
+    if(errSeveralSigns)
+        *errSeveralSigns = 0;
+    if(errInvalidNumberFound)
+        *errInvalidNumberFound = 0;
+    if(errOverflow)
+        *errOverflow = 0;
+    while(*itStr != '\0') {
+        if(*itStr == ' ') {
+            itStr++;
+            continue;
+        }
+        if(sign != 0 && iscValidSign(*itStr)) {
+            value = sign > 0 ? INT32_MAX : INT32_MIN;
+#ifdef VERBOSE
+            printf("Several signs in the number, last one at index %ld !!\n", itStr - str);
+#endif
+            if(errSeveralSigns)
+                *errSeveralSigns = UCHAR_MAX;
+            break;
+        }
+
+        if(sign == 0) {
+            sign = iscValidSign(*itStr);
+            if(sign != 0) {
+                itStr++;
+                continue;
+            }
+        }
+        if(iscDecimalSeparator(*itStr)) {
+            decimal = 1;
+#ifdef VERBOSE
+            printf("Decimal separator found (%c) at index %ld !!\n", *itStr, itStr - str);
+#endif
+            if(errDecimalSep)
+                *errDecimalSep = UCHAR_MAX;
+        }
+        number = iscValidNumber(*itStr);
+        if(number == -1) {
+            if(decimal == 0) {
+                if(errInvalidNumberFound)
+                    *errInvalidNumberFound = UCHAR_MAX;
+#ifdef VERBOSE
+                printf("Invalid number found (%c) at index %ld !!\n", *itStr, itStr - str);
+#endif
+            }
+            break;
+        }
+        if(sign == 0 && number != -1)
+            sign = 1;
+
+        if(isValueOverflow(value, sign, number) == 0) {
+            value = value * 10 + number;
+        }
+        else {
+            value = sign > 0 ? INT32_MAX : INT32_MIN;
+#ifdef VERBOSE
+            printf("Overflow at index %ld !!\n", itStr - str);
+#endif
+            if(errOverflow)
+                *errOverflow = UCHAR_MAX;
+            break;
+        }
+        itStr++;
+    }
+    
+    if((errDecimalSep && *errDecimalSep != 0)
+     || (errSeveralSigns && *errSeveralSigns != 0)
+     || (errInvalidNumberFound && *errInvalidNumberFound != 0)
+     || (errOverflow && *errOverflow != 0))
+        return value;
+    else
+        return sign * value;
+}

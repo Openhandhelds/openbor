@@ -61,6 +61,7 @@ char* multistrcatsp(char* buf, ...);
 char* safe_strncpy(char* dst, const char* src, size_t size);
 int safe_stricmp(const char *s1, const char *s2);
 int safe_strnicmp(const char *s1, const char *s2, size_t n);
+int32_t safe_atoi(char* str, unsigned char* errDecimalSep, unsigned char* errSeveralSigns, unsigned char* errInvalidNumberFound, unsigned char* errOverflow);
 void get_time_string(char buffer[], unsigned buffer_size, time_t timestamp, char* pattern); // pattern ex. "%Y-%m-%d %H:%M:%S"
 void get_now_string(char buffer[], unsigned buffer_size, char* pattern);
 

@@ -3115,13 +3115,29 @@ int isNumeric(char *text)
 int getValidInt(char *text, char *file, char *cmd)
 {
     static const char *WARN_NUMBER_EXPECTED = "WARNING: %s tries to load a non-numeric value at %s, where a number is expected!\nerroneus string: %s\n";
+    static const char *WARN_NUMBER_OVERFLOW = "WARNING: %s tries to load a numeric value at %s but overflow occurred!\nerroneus string: %s not in [%d, %d]\n";
+    static const char *WARN_DECIMAL_SEPARATOR = "WARNING: %s tries to load a numeric value at %s and found decimal separator in string: %s!\n";
+    static const char *WARN_USING_VALUE = "WARNING: using numeric value %ld from string %s\n";
+    
     if(!text || !*text)
     {
         return 0;
     }
     if(isNumeric(text))
     {
-        return atoi(text);
+        unsigned char errDecimalSep, errSeveralSigns, errInvalidNumberFound, errOverflow;
+        int returnInt = safe_atoi(text, &errDecimalSep, &errSeveralSigns, &errInvalidNumberFound, &errOverflow);
+        if(errSeveralSigns != 0 || errInvalidNumberFound != 0 || errOverflow != 0 || errDecimalSep != 0) {
+            if(errSeveralSigns == UCHAR_MAX || errInvalidNumberFound == UCHAR_MAX)
+                printf(WARN_NUMBER_EXPECTED, file, cmd, text);
+            if(errOverflow == UCHAR_MAX)
+                printf(WARN_NUMBER_OVERFLOW, file, cmd, text, INT32_MIN, INT32_MAX);
+            if(errDecimalSep == UCHAR_MAX)
+                printf(WARN_DECIMAL_SEPARATOR, file, cmd, text);
+
+            printf(WARN_USING_VALUE, returnInt, text);
+		}
+        return returnInt;
     }
     else
     {
@@ -22438,7 +22454,11 @@ void display_ents()
 
                     if(e->modeldata.setlayer)
                     {
-                        z = HOLE_Z + e->modeldata.setlayer;    // Setlayer takes precedence
+                        if(e->modeldata.setlayer == INT32_MAX 
+                         || e->modeldata.setlayer >= INT32_MAX - HOLE_Z)
+						    z = INT32_MAX;
+						else
+                            z = HOLE_Z + e->modeldata.setlayer;    // Setlayer takes precedence
                     }
 
                     drawmethod = e->animation->drawmethods ? getDrawMethod(e->animation, e->animpos) : NULL;
