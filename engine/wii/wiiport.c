@@ -23,6 +23,7 @@ extern void __exception_setreload(int t);
 char packfile[MAX_FILENAME_LEN];
 char paksDir[MAX_FILENAME_LEN];
 char savesDir[MAX_FILENAME_LEN];
+char configsDir[MAX_FILENAME_LEN];
 char logsDir[MAX_FILENAME_LEN];
 char screenShotsDir[MAX_FILENAME_LEN];
 char rootDir[MAX_FILENAME_LEN]; // note: this one ends with a slash
@@ -104,6 +105,7 @@ int main(int argc, char * argv[])
 
 	sprintf(rootDir, "%s/", root);
 	sprintf(savesDir, "%s/Saves", root);
+	sprintf(configsDir, "%s/Configs", root);
 	sprintf(paksDir,"%s/Paks", root);
 	sprintf(logsDir, "%s/Logs", root);
 	sprintf(screenShotsDir, "%s/ScreenShots", root);
@@ -111,6 +113,7 @@ int main(int argc, char * argv[])
 
 	dirExists(paksDir, 1);
 	dirExists(savesDir, 1);
+	dirExists(configsDir, 1);
 	dirExists(logsDir, 1);
 	dirExists(screenShotsDir, 1);
 	

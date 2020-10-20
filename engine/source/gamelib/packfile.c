@@ -277,15 +277,13 @@ static char *slashfwd(const char *sz)
 #ifdef LINUX
 char *casesearch(const char *dir, const char *filepath)
 {
-    static const char *WARN_TOO_LONG_PATH = "WARNING: can't build the fullpath with %s and %s; the required size is %d bytes and the fullpath is %d bytes\n";
+    static const char *WARN_TOO_LONG_PATH = "can't build the fullpath with %s and %s; the required size is %d bytes and the fullpath is %d bytes\n";
     DIR *d;
     struct dirent *entry;;
     char filename[PACKFILE_PATH_MAX] = {""}, *rest_of_path;
     static char fullpath[PACKFILE_PATH_MAX];
     int i = 0;
-#ifdef VERBOSE
-    printf("casesearch: %s, %s\n", dir, filepath);
-#endif
+    printf_debug("casesearch: %s, %s\n", dir, filepath);
 
     if ((d = opendir(dir)) == NULL)
     {
@@ -331,7 +329,7 @@ char *casesearch(const char *dir, const char *filepath)
             
             if(csnp < 0)
             {
-                printf(WARN_TOO_LONG_PATH, path, entry->d_name, strlen(entry->d_name) + csnp, PACKFILE_PATH_MAX);
+                printf_warn(WARN_TOO_LONG_PATH, path, entry->d_name, strlen(entry->d_name) + csnp, PACKFILE_PATH_MAX);
                 i = 0;
             }
             
@@ -360,7 +358,7 @@ int getFreeHandle(void)
     for(h = 0; h < MAXPACKHANDLES && packhandle[h] > -1; h++); // Find free handle
     if(h >= MAXPACKHANDLES)
     {
-        printf ("no free handles\n"); // since this condition shuts down openbor, we can savely give more info.
+        printf_error("no free handles\n"); // since this condition shuts down openbor, we can savely give more info.
         return -1;			// No free handles
     }
     return h;
@@ -421,7 +419,7 @@ int openpackfile(const char *filename, const char *packfilename)
     {
         pointsto = "unknown destination";
     }
-    printf ("openpackfile called: f: %s, p: %s, dest: %s\n", filename, packfilename, pointsto);
+    printf_debug_full("openpackfile called: f: %s, p: %s, dest: %s\n", filename, packfilename, pointsto);
 #endif
     return pOpenPackfile(filename, packfilename);
 }
@@ -457,7 +455,7 @@ int openPackfile(const char *filename, const char *packfilename)
         if((packfilesize[h] = lseek(handle, 0, SEEK_END)) == -1)
         {
 #ifdef VERBOSE
-            printf ("err handles 1\n");
+            printf_debug_full("err handles 1\n");
 #endif
             close(handle);
             return -1;
@@ -465,7 +463,7 @@ int openPackfile(const char *filename, const char *packfilename)
         if(lseek(handle, 0, SEEK_SET) == -1)
         {
 #ifdef VERBOSE
-            printf ("err handles 2\n");
+            printf_debug_full ("err handles 2\n");
 #endif
             close(handle);
             return -1;
@@ -484,7 +482,7 @@ int openPackfile(const char *filename, const char *packfilename)
             if((packfilesize[h] = lseek(handle, 0, SEEK_END)) == -1)
             {
 #ifdef VERBOSE
-                printf ("err handles 3\n");
+                printf_debug_full ("err handles 3\n");
 #endif
                 close(handle);
                 return -1;
@@ -492,7 +490,7 @@ int openPackfile(const char *filename, const char *packfilename)
             if(lseek(handle, 0, SEEK_SET) == -1)
             {
 #ifdef VERBOSE
-                printf ("err handles 4\n");
+                printf_debug_full ("err handles 4\n");
 #endif
                 close(handle);
                 return -1;
@@ -512,7 +510,7 @@ int openPackfile(const char *filename, const char *packfilename)
     if((handle = open(packfilename, O_CREAT | O_RDONLY | O_BINARY, 777)) == -1)
     {
 #ifdef VERBOSE
-        printf ("perm err\n");
+        printf_debug_full ("perm err\n");
 #endif
         return -1;
     }
@@ -522,7 +520,7 @@ int openPackfile(const char *filename, const char *packfilename)
     if(read(handle, &magic, 4) != 4 || magic != SwapLSB32(PACKMAGIC))
     {
 #ifdef VERBOSE
-        printf ("err magic\n");
+        printf_debug_full ("err magic\n");
 #endif
         close(handle);
         return -1;
@@ -531,7 +529,7 @@ int openPackfile(const char *filename, const char *packfilename)
     if(read(handle, &version, 4) != 4 || version != SwapLSB32(PACKVERSION))
     {
 #ifdef VERBOSE
-        printf ("err version\n");
+        printf_debug_full ("err version\n");
 #endif
 
         close(handle);
@@ -542,7 +540,7 @@ int openPackfile(const char *filename, const char *packfilename)
     if(lseek(handle, -4, SEEK_END) == -1)
     {
 #ifdef VERBOSE
-        printf ("seek failed\n");
+        printf_debug_full ("seek failed\n");
 #endif
         close(handle);
         return -1;
@@ -551,7 +549,7 @@ int openPackfile(const char *filename, const char *packfilename)
     if(read(handle, &headerstart, 4) != 4)
     {
 #ifdef VERBOSE
-        printf ("err header\n");
+        printf_debug_full ("err header\n");
 #endif
         close(handle);
         return -1;
@@ -563,7 +561,7 @@ int openPackfile(const char *filename, const char *packfilename)
     if(lseek(handle, headerstart, SEEK_SET) == -1)
     {
 #ifdef VERBOSE
-        printf ("err headerstart 1\n");
+        printf_debug_full ("err headerstart 1\n");
 #endif
         close(handle);
         return -1;
@@ -589,7 +587,7 @@ int openPackfile(const char *filename, const char *packfilename)
         if(lseek(handle, p, SEEK_SET) == -1)
         {
 #ifdef VERBOSE
-            printf ("err seek handles\n");
+            printf_debug_full ("err seek handles\n");
 #endif
             close(handle);
             return -1;
@@ -597,7 +595,7 @@ int openPackfile(const char *filename, const char *packfilename)
     }
     // Filename not found
 #ifdef VERBOSE
-    printf ("err filename not found\n");
+    printf_debug_full ("err filename not found\n");
 #endif
     close(handle);
     return -1;
@@ -651,7 +649,8 @@ void freefilenamecache(void)
     {
         if(printFileUsageStatistics)
         {
-            printf("unused files in the pack:\n");
+            if(!is_log_disable())
+                printf("unused files in the pack:\n");
             List_GotoFirst(filenamelist);
             n = List_GetCurrentNode(filenamelist);
             while(n)
@@ -659,7 +658,8 @@ void freefilenamecache(void)
                 if(((size_t) n->value & USED_FLAG) != USED_FLAG)
                 {
                     count++;
-                    printf("%s\n", n->name);
+                    if(!is_log_disable())
+                        printf("%s\n", n->name);
                 }
                 if(List_GotoNext(filenamelist))
                 {
@@ -671,11 +671,14 @@ void freefilenamecache(void)
                 }
                 total++;
             }
-            printf("Summary: %d of %d files have been unused\n", (int) count, (int) total);
-            printf("WARNING\n");
-            printf("to be completely sure if a file is unused, you have to play the entire mod\n");
-            printf("in every possible branch, including every possible player, and so forth.\n");
-            printf("so only remove stuff from a foreign mod if you're completely sure that it is unused.\n");
+            if(!is_log_disable())
+            {
+                printf("Summary: %d of %d files have been unused\n", (int) count, (int) total);
+                printf("WARNING\n");
+                printf("to be completely sure if a file is unused, you have to play the entire mod\n");
+                printf("in every possible branch, including every possible player, and so forth.\n");
+                printf("so only remove stuff from a foreign mod if you're completely sure that it is unused.\n");
+            }
         }
         List_Clear(filenamelist);
         free(filenamelist);
@@ -698,7 +701,7 @@ int openreadaheadpackfile(const char *filename, const char *packfilename, int re
         al = strlen(packfilename);
         if(myfilenamecmp(packfilename, al, packfile, fnl))
         {
-            printf("tried to open from unknown pack file (%s)\n", packfilename);
+            printf_error("tried to open from unknown pack file (%s)\n", packfilename);
             return -1;
         }
     }
@@ -921,7 +924,7 @@ int closepackfile(int handle)
     {
         pointsto = "unknown destination";
     }
-    printf ("closepackfile called: h: %d, dest: %s\n", handle, pointsto);
+    printf_debug_full ("closepackfile called: h: %d, dest: %s\n", handle, pointsto);
 #endif
     return pClosePackfile(handle);
 }
@@ -929,20 +932,20 @@ int closepackfile(int handle)
 int closePackfile(int handle)
 {
 #ifdef VERBOSE
-    printf ("closePackfile called: h: %d\n", handle);
+    printf_debug_full ("closePackfile called: h: %d\n", handle);
 #endif
 
     if(handle < 0 || handle >= MAXPACKHANDLES)
     {
 #ifdef VERBOSE
-        printf("handle too small/big\n");
+        printf_debug_full("handle too small/big\n");
 #endif
         return -1;
     }
     if(packhandle[handle] == -1)
     {
 #ifdef VERBOSE
-        printf("packhandle -1\n");
+        printf_debug_full("packhandle -1\n");
 #endif
         return -1;
     }
@@ -1229,7 +1232,7 @@ int pak_init()
 
     if(pak_initialized)
     {
-        printf("pak_init already initialized!");
+        printf_warn("pak_init already initialized!");
         return 0;
     }
 
@@ -1253,7 +1256,7 @@ int pak_init()
         pakfd = find_iso_file(packfile, cd_lba, &paksize);
         if(pakfd <= 0)
         {
-            printf("unable to find pak file on cd\n");
+            printf_warn("unable to find pak file on cd\n");
             return 0;
         }
         pakfd = -pakfd;
@@ -1266,7 +1269,7 @@ int pak_init()
 
         if(pakfd < 0)
         {
-            printf("error opening %s (%d) - could not get a valid device descriptor.\n%s\n", packfile, pakfd, strerror(errno));
+            printf_error("error opening %s (%d) - could not get a valid device descriptor.\n%s\n", packfile, pakfd, strerror(errno));
             return 0;
         }
 
@@ -1296,14 +1299,14 @@ int pak_init()
     sectors = malloc(4096);
     if(!sectors)
     {
-        printf("sector malloc failed\n");
+        printf_error("sector malloc failed\n");
         return 0;
     }
     {
         int getptrfrom = paksize - 4;
         if(pak_getsectors(sectors, getptrfrom >> 11, 2) < 1)
         {
-            printf("unable to read pak header pointer\n");
+            printf_warn("unable to read pak header pointer\n");
             return 0;
         }
         pak_headerstart = readlsb32(sectors + (getptrfrom & 0x7FF));
@@ -1311,7 +1314,7 @@ int pak_init()
     free(sectors);
     if(pak_headerstart >= paksize || pak_headerstart < 0)
     {
-        printf("invalid pak header pointer\n");
+        printf_warn("invalid pak header pointer\n");
         return 0;
     }
     pak_headersize = paksize - pak_headerstart;
@@ -1326,18 +1329,18 @@ int pak_init()
             // this size.  Hence, I have doubled it.  This could
             // pose a problem on optical media, but that is yet to be
             // determined.
-            printf("Warning: pak header is too large: %d / 524288\n", pak_cdheadersize);
+            printf_warn("pak header is too large: %d / 524288\n", pak_cdheadersize);
             //return 0;
         }
         pak_cdheader = malloc(pak_cdheadersize);
         if(!pak_cdheader)
         {
-            printf("pak_cdheader malloc failed\n");
+            printf_error("pak_cdheader malloc failed\n");
             return 0;
         }
         if(pak_getsectors(pak_cdheader, pak_cdheaderstart >> 11, pak_cdheadersize >> 11) != (pak_cdheadersize >> 11))
         {
-            printf("unable to read pak header\n");
+            printf_warn("unable to read pak header\n");
             return 0;
         }
         // ok, header is now cached

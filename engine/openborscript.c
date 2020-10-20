@@ -383,11 +383,13 @@ void Script_Global_Clear()
     size = List_GetSize(&scriptheap);
     if(size > 0)
     {
-        printf("\nWarning: %d script variants are not freed, dumping...\n", size);
+		if(!is_log_disable())
+            printf_warn("%d script variants are not freed, dumping...\n", size);
     }
     for(i = 0, List_Reset(&scriptheap); i < size; List_GotoNext(&scriptheap), i++)
     {
-        printf("%s\n", List_GetName(&scriptheap));
+		if(!is_log_disable())
+             printf("%s\n", List_GetName(&scriptheap));
         _freeheapnode(List_Retrieve(&scriptheap));
     }
     List_Clear(&scriptheap);
@@ -1236,11 +1238,12 @@ HRESULT openbor_log(ScriptVariant **varlist , ScriptVariant **pretvar, int param
     }
 
     ScriptVariant_ToString(varlist[0], buf);
-    printf("%s", buf);
+    if(!is_log_disable())
+        printf("%s", buf);
     return S_OK;
 
 drawstring_error:
-    printf("Function needs 1 parameter: log(value)\n");
+    printf_error("Function needs 1 parameter: log(value)\n");
     return E_FAIL;
 }
 
@@ -1295,7 +1298,7 @@ HRESULT openbor_drawbox(ScriptVariant **varlist , ScriptVariant **pretvar, int p
     return S_OK;
 
 drawbox_error:
-    printf("Function requires 6 integer values: drawbox(int x, int y, int width, int height, int z, int color, int lut)\n");
+    printf_error("function requires 6 integer values: drawbox(int x, int y, int width, int height, int z, int color, int lut)\n");
     return E_FAIL;
 }
 
@@ -1359,7 +1362,7 @@ HRESULT openbor_drawboxtoscreen(ScriptVariant **varlist , ScriptVariant **pretva
     return S_OK;
 
 drawbox_error:
-    printf("Function requires a screen handle and 5 integer values, 7th integer value is optional: drawboxtoscreen(screen, int x, int y, int width, int height, int color, int lut)\n");
+    printf_error("function requires a screen handle and 5 integer values, 7th integer value is optional: drawboxtoscreen(screen, int x, int y, int width, int height, int color, int lut)\n");
     return E_FAIL;
 }
 
@@ -1414,7 +1417,7 @@ HRESULT openbor_drawline(ScriptVariant **varlist , ScriptVariant **pretvar, int 
     return S_OK;
 
 drawline_error:
-    printf("Function requires 6 integer values, 7th integer value is optional: drawline(int x1, int y1, int x2, int y2, int z, int color, int lut)\n");
+    printf_error("function requires 6 integer values, 7th integer value is optional: drawline(int x1, int y1, int x2, int y2, int z, int color, int lut)\n");
     return E_FAIL;
 }
 
@@ -1476,7 +1479,7 @@ HRESULT openbor_drawlinetoscreen(ScriptVariant **varlist , ScriptVariant **pretv
 
     return S_OK;
 drawline_error:
-    printf("Function requires a screen handle and 5 integer values, 7th integer value is optional: drawlinetoscreen(screen, int x1, int y1, int x2, int y2, int color, int lut)\n");
+    printf_error("function requires a screen handle and 5 integer values, 7th integer value is optional: drawlinetoscreen(screen, int x1, int y1, int x2, int y2, int color, int lut)\n");
     return E_FAIL;
 }
 
@@ -1517,7 +1520,7 @@ HRESULT openbor_drawsprite(ScriptVariant **varlist , ScriptVariant **pretvar, in
     return S_OK;
 
 drawsprite_error:
-    printf("Function requires a valid sprite handle 3 integer values, 5th integer value is optional: drawsprite(sprite, int x, int y, int z, int sortid)\n");
+    printf_error("function requires a valid sprite handle 3 integer values, 5th integer value is optional: drawsprite(sprite, int x, int y, int z, int sortid)\n");
     return E_FAIL;
 }
 
@@ -1567,7 +1570,7 @@ HRESULT openbor_drawspritetoscreen(ScriptVariant **varlist , ScriptVariant **pre
     return S_OK;
 
 drawsprite_error:
-    printf("Function requires a valid sprite handle, a valid screen handle and 2 integer values: drawspritetoscreen(sprite, screen, int x, int y)\n");
+    printf_error("function requires a valid sprite handle, a valid screen handle and 2 integer values: drawspritetoscreen(sprite, screen, int x, int y)\n");
     return E_FAIL;
 }
 
@@ -1622,7 +1625,7 @@ HRESULT openbor_drawdot(ScriptVariant **varlist , ScriptVariant **pretvar, int p
     return S_OK;
 
 drawdot_error:
-    printf("Function requires 4 integer values, 5th integer value is optional: drawdot(int x, int y, int z, int color, int lut)\n");
+    printf_error("function requires 4 integer values, 5th integer value is optional: drawdot(int x, int y, int z, int color, int lut)\n");
     return E_FAIL;
 }
 
@@ -1686,7 +1689,7 @@ HRESULT openbor_drawdottoscreen(ScriptVariant **varlist , ScriptVariant **pretva
     return S_OK;
 
 drawdot_error:
-    printf("Function requires a screen handle and 3 integer values, 5th integer value is optional: dottoscreen(screen, int x, int y, int color, int lut)\n");
+    printf_error("function requires a screen handle and 3 integer values, 5th integer value is optional: dottoscreen(screen, int x, int y, int color, int lut)\n");
     return E_FAIL;
 }
 
@@ -1752,7 +1755,7 @@ HRESULT openbor_drawscreen(ScriptVariant **varlist , ScriptVariant **pretvar, in
     return S_OK;
 
 drawscreen_error:
-    printf("Function requires a screen handle and 3 integer values, 5th integer value is optional: drawscreen(screen, int x, int y, int z, int lut)\n");
+    printf_error("function requires a screen handle and 3 integer values, 5th integer value is optional: drawscreen(screen, int x, int y, int z, int lut)\n");
     return E_FAIL;
 }
 
@@ -1868,7 +1871,7 @@ HRESULT openbor_getmodelproperty(ScriptVariant **varlist , ScriptVariant **pretv
 
     if((varlist[0]->vt != VT_INTEGER && varlist[0]->vt != VT_STR) || varlist[1]->vt != VT_INTEGER)
     {
-        printf("\n Error, getmodelproperty({model}, {property}): Invalid or missing parameter. Getmodelproperty must be passed valid {model} and {property} indexes.\n");
+        printf_error("getmodelproperty({model}, {property}): Invalid or missing parameter. Getmodelproperty must be passed valid {model} and {property} indexes.\n");
     }
 
     iArg = varlist[0]->vt == VT_INTEGER ? varlist[0]->lVal : get_cached_model_index(StrCache_Get(varlist[0]->strVal));
@@ -1927,7 +1930,7 @@ HRESULT openbor_changemodelproperty(ScriptVariant **varlist , ScriptVariant **pr
 
     if((varlist[0]->vt != VT_INTEGER && varlist[0]->vt != VT_STR) || varlist[1]->vt != VT_INTEGER)
     {
-        printf("\n Error, changemodelproperty({model}, {property}, {value}): Invalid or missing parameter. Changemodelproperty must be passed valid {model}, {property} and {value}.\n");
+        printf_error("changemodelproperty({model}, {property}, {value}): Invalid or missing parameter. Changemodelproperty must be passed valid {model}, {property} and {value}.\n");
     }
 
     iArg = varlist[0]->vt == VT_INTEGER ? varlist[0]->lVal : get_cached_model_index(StrCache_Get(varlist[0]->strVal));
@@ -3093,7 +3096,7 @@ int mapstrings_entityproperty(ScriptVariant **varlist, int paramCount)
     // deprecation warning for "a" property
     case _ep_a:
     {
-        printf("\nNote: Property 'a' has been deprecated. Use 'y' to access the Y (vertical) axis property.\n");
+        printf_warn("note: Property 'a' has been deprecated. Use 'y' to access the Y (vertical) axis property.\n");
         break;
     }
     // map subproperties of aiflag property
@@ -3260,7 +3263,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
     arg = varlist[0];
     if(arg->vt != VT_PTR && arg->vt != VT_EMPTY)
     {
-        printf("Function getentityproperty must have a valid entity handle.\n");
+        printf_warn("function getentityproperty must have a valid entity handle.\n");
         *pretvar = NULL;
         return E_FAIL;
     }
@@ -3273,7 +3276,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
     arg = varlist[1];
     if(arg->vt != VT_INTEGER)
     {
-        printf("Function getentityproperty must have a string property name.\n");
+        printf_warn("function getentityproperty must have a string property name.\n");
     }
 
     propind = arg->lVal;
@@ -3308,7 +3311,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         arg = varlist[2];
         if(arg->vt != VT_INTEGER)
         {
-            printf("You must give a string name for aiflag.\n");
+            printf_warn("you must give a string name for aiflag.\n");
             return E_FAIL;
         }
         ltemp = arg->lVal;
@@ -3551,7 +3554,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
                 || varlist[2]->vt != VT_INTEGER
                 || varlist[3]->vt != VT_INTEGER)
         {
-            printf("\n Error, getentityproperty({ent}, \"vulnerable\", {animation}, {frame}): parameters missing or invalid. \n");
+            printf_error("getentityproperty({ent}, \"vulnerable\", {animation}, {frame}): parameters missing or invalid. \n");
             *pretvar = NULL;
             return E_FAIL;
         }
@@ -3706,7 +3709,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         {
             if(FAILED(ScriptVariant_IntegerValue(varlist[2], &ltemp)))
             {
-                printf("You must specify an attack type for your defense property.\n");
+                printf_warn("you must specify an attack type for your defense property.\n");
                 *pretvar = NULL;
                 return E_FAIL;
             }
@@ -3822,7 +3825,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         arg = varlist[2];
         if(arg->vt != VT_INTEGER)
         {
-            printf("You must provide a string name for edelay subproperty.\n\
+            printf_warn("you must provide a string name for edelay subproperty.\n\
 	~'cap_max'\n\
 	~'cap_min'\n\
 	~'factor'\n\
@@ -3889,7 +3892,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         arg = varlist[2];
         if(arg->vt != VT_INTEGER)
         {
-            printf("You must give a string name for edgerange.\n");
+            printf_warn("you must give a string name for edgerange.\n");
             return E_FAIL;
         }
         ltemp = arg->lVal;
@@ -3918,7 +3921,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
 
         if(varlist[2]->vt != VT_INTEGER)
         {
-            printf("You must provide a string name for energycost.\n\
+            printf_warn("you must provide a string name for energycost.\n\
 	~'cost'\n\
 	~'disable'\n\
 	~'mponly'\n");
@@ -3998,7 +4001,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         arg = varlist[2];
         if(arg->vt != VT_INTEGER)
         {
-            printf("You must give a string name for flash property.\n");
+            printf_warn("you must give a string name for flash property.\n");
             *pretvar = NULL;
             return E_FAIL;
         }
@@ -4142,7 +4145,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         arg = varlist[2];
         if(arg->vt != VT_INTEGER)
         {
-            printf("You must provide a string name for icon subproperty:\n\
+            printf_warn("you must provide a string name for icon subproperty:\n\
 	getentityproperty({ent}, 'icon', {subproperty});\n\
 	~'default'\n\
 	~'die'\n\
@@ -4291,7 +4294,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
 
             if(arg->vt != VT_INTEGER)
             {
-                printf("You must provide a string name for knockdowncount subproperty:\n\
+                printf_warn("you must provide a string name for knockdowncount subproperty:\n\
 		getentityproperty({ent}, 'knockdowncount', {subproperty})\n\
 		~'current'\n\
 		~'max'\n\
@@ -4344,7 +4347,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         if(varlist[2]->vt != VT_INTEGER
                 || varlist[3]->vt != VT_INTEGER)
         {
-            printf("\n Error, getentityproperty({ent}, 'landframe', {sub property}, {animation}): {Sub property} or {Animation} parameter is missing or invalid. \n");
+            printf_error("getentityproperty({ent}, 'landframe', {sub property}, {animation}): {Sub property} or {Animation} parameter is missing or invalid. \n");
             *pretvar = NULL;
             return E_FAIL;
         }
@@ -4436,7 +4439,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         arg = varlist[2];
         if(arg->vt != VT_INTEGER)
         {
-            printf("You must give a string name for maps property.\n");
+            printf_warn("you must give a string name for maps property.\n");
             *pretvar = NULL;
             return E_FAIL;
         }
@@ -4473,7 +4476,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
             {
                 if(FAILED(ScriptVariant_IntegerValue(varlist[2], &ltemp)))
                 {
-                    printf("You must specify the integer value for remap.\n");
+                    printf_warn("you must specify the integer value for remap.\n");
                     *pretvar = NULL;
                     return E_FAIL;
                 }
@@ -4806,7 +4809,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         if(varlist[2]->vt != VT_INTEGER
                 || varlist[3]->vt != VT_INTEGER)
         {
-            printf("\n Error, getentityproperty({ent}, 'range', {sub property}, {animation}): {Sub property} or {Animation} parameter is missing or invalid. \n");
+            printf_error("getentityproperty({ent}, 'range', {sub property}, {animation}): {Sub property} or {Animation} parameter is missing or invalid. \n");
             *pretvar = NULL;
             return E_FAIL;
         }
@@ -4867,7 +4870,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         arg = varlist[2];
         if(arg->vt != VT_INTEGER)
         {
-            printf("You must give a string name for running property.\n");
+            printf_warn("you must give a string name for running property.\n");
             *pretvar = NULL;
             return E_FAIL;
         }
@@ -5075,7 +5078,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         if(arg->vt != VT_INTEGER)
         {
 
-            printf("You must provide a string name for staydown property:\n\
+            printf_warn("you must provide a string name for staydown property:\n\
 	getentityproperty({ent}, 'staydown', {subproperty})\n\
 	~'rise'\n\
 	~'riseattack'\n\
@@ -5273,7 +5276,7 @@ HRESULT openbor_getentityproperty(ScriptVariant **varlist , ScriptVariant **pret
         {
             if(FAILED(ScriptVariant_IntegerValue(varlist[2], &ltemp)))
             {
-                printf("You must specify the flag value.\n");
+                printf_warn("you must specify the flag value.\n");
                 *pretvar = NULL;
                 return E_FAIL;
             }
@@ -5382,7 +5385,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
 
     if(paramCount < 3)
     {
-        printf("Function changeentityproperty must have have at least 3 parameters.");
+        printf_warn("function changeentityproperty must have have at least 3 parameters.");
         goto changeentityproperty_error;
     }
 
@@ -5390,7 +5393,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
 
     if(varlist[0]->vt != VT_PTR && varlist[0]->vt != VT_EMPTY)
     {
-        printf("Function changeentityproperty must have a valid entity handle.");
+        printf_warn("function changeentityproperty must have a valid entity handle.");
         goto changeentityproperty_error;
     }
     ent = (entity *)varlist[0]->ptrVal; //retrieve the entity
@@ -5403,7 +5406,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
     {
         if(varlist[1]->vt != VT_STR)
         {
-            printf("Function changeentityproperty must have a string property name.\n");
+            printf_warn("function changeentityproperty must have a string property name.\n");
         }
         goto changeentityproperty_error;
     }
@@ -5434,7 +5437,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         {
             if(varlist[2]->vt != VT_STR)
             {
-                printf("You must give a string value for AI flag name.\n");
+                printf_warn("you must give a string value for AI flag name.\n");
             }
             goto changeentityproperty_error;
         }
@@ -5526,7 +5529,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
                 ent->walking = (LONG)ltemp;
                 break;
             default:
-                printf("Unknown AI flag.\n");
+                printf_warn("unknown AI flag.\n");
                 goto changeentityproperty_error;
             }
         }
@@ -5697,7 +5700,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
             }
             else
             {
-                printf("You must pass one or more string constants for candamage entity type.\n");
+                printf_warn("you must pass one or more string constants for candamage entity type.\n");
                 goto changeentityproperty_error;
             }
         }
@@ -5754,13 +5757,13 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
     {
         if(varlist[2]->vt != VT_STR)
         {
-            printf("You must give a string value for entity name.\n");
+            printf_warn("you must give a string value for entity name.\n");
             goto changeentityproperty_error;
         }
         tempmodel = findmodel((char *)StrCache_Get(varlist[2]->strVal));
         if(!tempmodel)
         {
-            printf("Use must give an existing model's name for entity's default model name.\n");
+            printf_warn("use must give an existing model's name for entity's default model name.\n");
             goto changeentityproperty_error;
         }
         ent->defaultmodel = tempmodel;
@@ -5880,7 +5883,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         {
             if(varlist[2]->vt != VT_STR)
             {
-                printf("You must give a string value for edgerange name.\n");
+                printf_warn("you must give a string value for edgerange name.\n");
             }
             goto changeentityproperty_error;
         }
@@ -5900,7 +5903,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
                 ent->modeldata.edgerange.z = (DOUBLE)dbltemp;
                 break;
             default:
-                printf("Unknown edgerange.\n");
+                printf_warn("unknown edgerange.\n");
                 goto changeentityproperty_error;
             }
         }
@@ -5910,13 +5913,13 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
     {
         if(paramCount != 5)
         {
-            printf("\n Error, changeentityproperty({ent}, 'energycost', {subproperty}, {animation}, {value}): Invalid or missing parameter. \n");
+            printf_error("changeentityproperty({ent}, 'energycost', {subproperty}, {animation}, {value}): Invalid or missing parameter. \n");
             goto changeentityproperty_error;
         }
 
         if(FAILED(ScriptVariant_IntegerValue(varlist[3], &ltemp)))
         {
-            printf("\n Error, changeentityproperty has invalid animation id.\n");
+            printf_error("changeentityproperty has invalid animation id.\n");
             goto changeentityproperty_error;
         }
 
@@ -5924,13 +5927,13 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
 
         if(!validanim(ent, i))
         {
-            printf("\n Error, changeentityproperty({ent}, 'energycost', {subproperty}, {animation}, {value}): {animation} parameter invalid. Make sure the animation exists. \n");
+            printf_error("changeentityproperty({ent}, 'energycost', {subproperty}, {animation}, {value}): {animation} parameter invalid. Make sure the animation exists. \n");
             goto changeentityproperty_error;
         }
 
         if(varlist[2]->vt != VT_INTEGER)
         {
-            printf("You must give a string value for energycost flag name.\n");
+            printf_warn("you must give a string value for energycost flag name.\n");
             goto changeentityproperty_error;
         }
 
@@ -5971,7 +5974,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
             break;
         }
         default:
-            printf("Unknown Energycost flag.\n");
+            printf_warn("unknown Energycost flag.\n");
             goto changeentityproperty_error;
         }
         break;
@@ -6157,7 +6160,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
             }
             else
             {
-                printf("You must pass one or more string constants for hostile entity type.\n");
+                printf_warn("you must pass one or more string constants for hostile entity type.\n");
                 goto changeentityproperty_error;
             }
         }
@@ -6237,7 +6240,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         if(varlist[2]->vt != VT_INTEGER)
         {
             if(varlist[2]->vt != VT_STR)
-                printf("You must provide a string value for Knockdowncount subproperty:\n\
+                printf_warn("you must provide a string value for Knockdowncount subproperty:\n\
                     changeentityproperty({ent}, 'knockdowncount', {subproperty}, {value})\n\
                     ~'current'\n\
                     ~'max'\n\
@@ -6270,7 +6273,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
                 break;
             }
         default:
-            printf("Unknown knockdowncount subproperty.\n");
+            printf_warn("unknown knockdowncount subproperty.\n");
             goto changeentityproperty_error;
         }
         break;
@@ -6383,7 +6386,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
     {
         if(varlist[2]->vt != VT_STR)
         {
-            printf("You must give a string value for model name.\n");
+            printf_warn("you must give a string value for model name.\n");
             goto changeentityproperty_error;
         }
         tempstr = (char *)StrCache_Get(varlist[2]->strVal);
@@ -6477,7 +6480,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
     {
         if(varlist[2]->vt != VT_STR)
         {
-            printf("You must give a string value for entity name.\n");
+            printf_warn("you must give a string value for entity name.\n");
             goto changeentityproperty_error;
         }
         strcpy(ent->name, (char *)StrCache_Get(varlist[2]->strVal));
@@ -6707,7 +6710,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
             }
             else
             {
-                printf("You must pass one or more string constants for projectilehit entity type.\n");
+                printf_warn("you must pass one or more string constants for projectilehit entity type.\n");
                 goto changeentityproperty_error;
             }
         }
@@ -6824,7 +6827,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         if(varlist[2]->vt != VT_INTEGER)
         {
             if(varlist[2]->vt != VT_STR)
-                printf("You must provide a string value for Sprite Array subproperty:\n\
+                printf_warn("you must provide a string value for Sprite Array subproperty:\n\
                     changeentityproperty({ent}, 'spritea', {subproperty}, {animation ID}, {frame}, {value})\n\
                     ~'centerx'\n\
                     ~'centery'\n\
@@ -6869,7 +6872,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         {
             if(varlist[5]->vt != VT_STR)
             {
-                printf("You must provide a string value for file name.\n");
+                printf_warn("you must provide a string value for file name.\n");
                 goto changeentityproperty_error;
             }
             strcpy(sprite_map[i].node->filename, (char *)StrCache_Get(varlist[5]->strVal));
@@ -6901,7 +6904,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
             break;
         }
         default:
-            printf("Unknown Sprite Array subproperty.\n");
+            printf_warn("unknown Sprite Array subproperty.\n");
             goto changeentityproperty_error;
         }
         break;
@@ -6927,7 +6930,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         if(varlist[2]->vt != VT_INTEGER)
         {
             if(varlist[2]->vt != VT_STR)
-                printf("You must provide a string value for Staydown subproperty:\n\
+                printf_warn("you must provide a string value for Staydown subproperty:\n\
                     changeentityproperty({ent}, 'staydown', {subproperty}, {value})\n\
                     ~'rise'\n\
                     ~'riseattack'\n\
@@ -6966,7 +6969,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
             break;
         }
         default:
-            printf("Unknown Staydown subproperty.\n");
+            printf_warn("unknown Staydown subproperty.\n");
             goto changeentityproperty_error;
         }
         break;
@@ -7083,7 +7086,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         }
         else if(varlist[2]->vt != VT_INTEGER)
         {
-            printf("You must give a string value for action type.\n");
+            printf_warn("you must give a string value for action type.\n");
             goto changeentityproperty_error;
         }
 
@@ -7106,7 +7109,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         }
         else if(varlist[2]->vt != VT_INTEGER)
         {
-            printf("You must give a string value for think type.\n");
+            printf_warn("you must give a string value for think type.\n");
             goto changeentityproperty_error;
         }
 
@@ -7190,7 +7193,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
     {
         if(varlist[2]->vt != VT_INTEGER)
         {
-            printf("You must provide a type constant for type.\n");
+            printf_warn("you must provide a type constant for type.\n");
             goto changeentityproperty_error;
         }
 
@@ -7250,7 +7253,7 @@ HRESULT openbor_changeentityproperty(ScriptVariant **varlist , ScriptVariant **p
         {
             if(FAILED(ScriptVariant_IntegerValue(varlist[3], &ltemp2)))
             {
-                printf("You must specify the flag value.\n");
+                printf_warn("you must specify the flag value.\n");
                 *pretvar = NULL;
                 return E_FAIL;
             }
@@ -7320,7 +7323,7 @@ HRESULT openbor_tossentity(ScriptVariant **varlist , ScriptVariant **pretvar, in
     return S_OK;
 
 toss_error:
-    printf("Function tossentity(entity,height, speedx, speedz) requires at least a valid entity handle.\n");
+    printf_error("function tossentity(entity,height, speedx, speedz) requires at least a valid entity handle.\n");
     *pretvar = NULL;
     return E_FAIL;
 }
@@ -7438,7 +7441,7 @@ HRESULT openbor_getplayerproperty(ScriptVariant **varlist , ScriptVariant **pret
     {
         if(arg->vt != VT_STR)
         {
-            printf("Function call getplayerproperty has invalid propery name parameter, it must be a string value.\n");
+            printf_warn("function call getplayerproperty has invalid propery name parameter, it must be a string value.\n");
         }
         *pretvar = NULL;
         return E_FAIL;
@@ -7586,7 +7589,7 @@ HRESULT openbor_getplayerproperty(ScriptVariant **varlist , ScriptVariant **pret
         frm = varlist[2];
         if(frm->vt != VT_INTEGER)
         {
-            printf("Need a combostep value number for this property.\n");
+            printf_warn("need a combostep value number for this property.\n");
             *pretvar = NULL;
             return E_FAIL;
         }
@@ -7606,7 +7609,7 @@ HRESULT openbor_getplayerproperty(ScriptVariant **varlist , ScriptVariant **pret
         frm = varlist[2];
         if(frm->vt != VT_INTEGER)
         {
-            printf("Need a combostep value number for this property.\n");
+            printf_warn("need a combostep value number for this property.\n");
             *pretvar = NULL;
             return E_FAIL;
         }
@@ -7710,7 +7713,7 @@ HRESULT openbor_changeplayerproperty(ScriptVariant **varlist , ScriptVariant **p
     *pretvar = NULL;
     if(paramCount < 3)
     {
-        printf("Function changeplayerproperty must have at least 3 arguments.\n");
+        printf_warn("function changeplayerproperty must have at least 3 arguments.\n");
         return E_FAIL;
     }
 
@@ -7732,7 +7735,7 @@ HRESULT openbor_changeplayerproperty(ScriptVariant **varlist , ScriptVariant **p
     {
         if(varlist[1]->vt != VT_STR)
         {
-            printf("You must give a string value for player property name.\n");
+            printf_warn("you must give a string value for player property name.\n");
         }
         return E_FAIL;
     }
@@ -7983,7 +7986,7 @@ HRESULT openbor_changeplayerproperty(ScriptVariant **varlist , ScriptVariant **p
             value = varlist[3];
             if(value->vt != VT_INTEGER)
             {
-                printf("Need a value and combostep value for this property.\n");
+                printf_warn("need a value and combostep value for this property.\n");
                 *pretvar = NULL;
                 return E_FAIL;
             }
@@ -8015,7 +8018,7 @@ HRESULT openbor_changeplayerproperty(ScriptVariant **varlist , ScriptVariant **p
             value = varlist[3];
             if(value->vt != VT_INTEGER)
             {
-                printf("Need a value and combostep value number for this property.\n");
+                printf_warn("need a value and combostep value number for this property.\n");
                 *pretvar = NULL;
                 return E_FAIL;
             }
@@ -8028,14 +8031,14 @@ HRESULT openbor_changeplayerproperty(ScriptVariant **varlist , ScriptVariant **p
         break;
     }
     default:
-        printf("Invalid property name for function changeplayerproperty.\n");
+        printf_warn("invalid property name for function changeplayerproperty.\n");
         return E_FAIL;
     }
 
     return S_OK;
 cpperror:
     ScriptVariant_ToString(arg, buffer);
-    printf("Function changeplayerproperty receives an invalid value: %s.\n", buffer);
+    printf_error("function changeplayerproperty receives an invalid value: %s.\n", buffer);
     return E_FAIL;
 }
 
@@ -8620,7 +8623,7 @@ int getsyspropertybyindex(ScriptVariant *var, int index)
     default:
         // We use indices now, but players/modders don't need to be exposed
         // to that implementation detail, so we write "name" and not "index".
-        printf("Unknown system property name.\n");
+        printf_warn("unknown system property name.\n");
         return 0;
     }
     return 1;
@@ -9414,7 +9417,7 @@ HRESULT openbor_openfilestream(ScriptVariant **varlist , ScriptVariant **pretvar
     arg = varlist[0];
     if(arg->vt != VT_STR)
     {
-        printf("Filename for openfilestream must be a string.\n");
+        printf_warn("filename for openfilestream must be a string.\n");
         *pretvar = NULL;
         return E_FAIL;
     }
@@ -9490,7 +9493,7 @@ HRESULT openbor_openfilestream(ScriptVariant **varlist , ScriptVariant **pretvar
     }
     else if(buffer_pakfile(filename, &filestreams[fsindex].buf, &filestreams[fsindex].size) != 1)
     {
-        printf("Invalid filename used in openfilestream.\n");
+        printf_warn("invalid filename used in openfilestream.\n");
         (*pretvar)->lVal = -1;
         return S_OK;
     }
@@ -9565,7 +9568,7 @@ HRESULT openbor_getfilestreamargument(ScriptVariant **varlist , ScriptVariant **
 
     if(varlist[2]->vt != VT_STR)
     {
-        printf("You must give a string value specifying what kind of value you want the argument converted to.\n");
+        printf_warn("you must give a string value specifying what kind of value you want the argument converted to.\n");
         return E_FAIL;
     }
     argtype = (char *)StrCache_Get(varlist[2]->strVal);
@@ -9592,7 +9595,7 @@ HRESULT openbor_getfilestreamargument(ScriptVariant **varlist , ScriptVariant **
     }
     else
     {
-        printf("Invalid type for argument converted to (getfilestreamargument).\n");
+        printf_warn("invalid type for argument converted to (getfilestreamargument).\n");
         return E_FAIL;
     }
 
@@ -9833,14 +9836,14 @@ HRESULT openbor_savefilestream(ScriptVariant **varlist , ScriptVariant **pretvar
     arg = varlist[0];
     if(FAILED(ScriptVariant_IntegerValue(arg, &filestreamindex)))
     {
-        printf("You must give a valid filestrema handle for savefilestream!\n");
+        printf_warn("you must give a valid filestrema handle for savefilestream!\n");
         return E_FAIL;
     }
 
     arg = varlist[1];
     if(arg->vt != VT_STR)
     {
-        printf("Filename for savefilestream must be a string.\n");
+        printf_warn("filename for savefilestream must be a string.\n");
         return E_FAIL;
     }
 
@@ -9849,7 +9852,7 @@ HRESULT openbor_savefilestream(ScriptVariant **varlist , ScriptVariant **pretvar
         patharg = (char *)StrCache_Get(varlist[2]->strVal);
         if( varlist[2]->vt != VT_STR )
         {
-            printf("The pathname parameter must be a string.\n");
+            printf_warn("the pathname parameter must be a string.\n");
             return E_FAIL;
         }
     }
@@ -9859,7 +9862,7 @@ HRESULT openbor_savefilestream(ScriptVariant **varlist , ScriptVariant **pretvar
         bytearg = (char *)StrCache_Get(varlist[3]->strVal);
         if( stricmp(bytearg, "byte") != 0 )
         {
-            printf("%s parameter does not exist.\n",bytearg);
+            printf_warn("%s parameter does not exist.\n",bytearg);
             return E_FAIL;
         }
     }
@@ -9948,7 +9951,7 @@ HRESULT openbor_damageentity(ScriptVariant **varlist , ScriptVariant **pretvar, 
 
     if(paramCount < 1)
     {
-        printf("Function requires at least 1 parameter.\n");
+        printf_error("function requires at least 1 parameter.\n");
         goto de_error;
     }
 
@@ -9958,7 +9961,7 @@ HRESULT openbor_damageentity(ScriptVariant **varlist , ScriptVariant **pretvar, 
     ent = (entity *)(varlist[0])->ptrVal; //retrieve the entity
     if(!ent)
     {
-        printf("Invalid entity parameter.\n");
+        printf_error("invalid entity parameter.\n");
         goto de_error;
     }
 
@@ -9977,7 +9980,7 @@ HRESULT openbor_damageentity(ScriptVariant **varlist , ScriptVariant **pretvar, 
 
         if(FAILED(ScriptVariant_IntegerValue((varlist[2]), &force)))
         {
-            printf("Wrong force value.\n");
+            printf_error("wrong force value.\n");
             goto de_error;
         }
 
@@ -9985,7 +9988,7 @@ HRESULT openbor_damageentity(ScriptVariant **varlist , ScriptVariant **pretvar, 
         {
             if(FAILED(ScriptVariant_IntegerValue((varlist[3]), &drop)))
             {
-                printf("Wrong drop value.\n");
+                printf_error("wrong drop value.\n");
                 goto de_error;
             }
         }
@@ -9993,7 +9996,7 @@ HRESULT openbor_damageentity(ScriptVariant **varlist , ScriptVariant **pretvar, 
         {
             if(FAILED(ScriptVariant_IntegerValue((varlist[4]), &type)))
             {
-                printf("Wrong type value.\n");
+                printf_error("wrong type value.\n");
                 goto de_error;
             }
         }
@@ -10048,7 +10051,7 @@ HRESULT openbor_getcomputeddamage(ScriptVariant **varlist , ScriptVariant **pret
 
     if(paramCount < 3)
     {
-        printf("Function requires at least 3 parameters.\n");
+        printf_error("function requires at least 3 parameters.\n");
         goto gcd_error;
     }
 
@@ -10062,7 +10065,7 @@ HRESULT openbor_getcomputeddamage(ScriptVariant **varlist , ScriptVariant **pret
     defender = (entity *)(varlist[0])->ptrVal; //retrieve the entity
     if(!defender)
     {
-        printf("Invalid entity parameter.\n");
+        printf_error("invalid entity parameter.\n");
         goto gcd_error;
     }
 
@@ -10073,7 +10076,7 @@ HRESULT openbor_getcomputeddamage(ScriptVariant **varlist , ScriptVariant **pret
 
     if(FAILED(ScriptVariant_IntegerValue((varlist[2]), &force)))
     {
-        printf("Wrong force value.\n");
+        printf_error("wrong force value.\n");
         goto gcd_error;
     }
 
@@ -10081,7 +10084,7 @@ HRESULT openbor_getcomputeddamage(ScriptVariant **varlist , ScriptVariant **pret
     {
         if(FAILED(ScriptVariant_IntegerValue((varlist[3]), &drop)))
         {
-            printf("Wrong drop value.\n");
+            printf_error("wrong drop value.\n");
             goto gcd_error;
         }
     }
@@ -10089,7 +10092,7 @@ HRESULT openbor_getcomputeddamage(ScriptVariant **varlist , ScriptVariant **pret
     {
         if(FAILED(ScriptVariant_IntegerValue((varlist[4]), &type)))
         {
-            printf("Wrong type value.\n");
+            printf_error("wrong type value.\n");
             goto gcd_error;
         }
     }
@@ -10201,7 +10204,7 @@ HRESULT openbor_dograb(ScriptVariant **varlist , ScriptVariant **pretvar, int pa
     error_local:
 
     result = E_FAIL;
-    printf("\nYou must provide valid entity handles and an optional adjustment: " SELF_NAME);
+    printf_error("you must provide valid entity handles and an optional adjustment: " SELF_NAME);
 
     // Return result.
     return result;
@@ -10298,7 +10301,7 @@ HRESULT openbor_checkrange(ScriptVariant **varlist , ScriptVariant **pretvar, in
 
     if(ani < 0 || ani >= max_animations)
     {
-        printf("Animation id out of range: %d / %d.\n", (int)ani, max_animations);
+        printf_error("animation id out of range: %d / %d.\n", (int)ani, max_animations);
         goto checkrange_error;
     }
 
@@ -10307,7 +10310,7 @@ HRESULT openbor_checkrange(ScriptVariant **varlist , ScriptVariant **pretvar, in
     return S_OK;
 
 checkrange_error:
-    printf("Function needs at least 2 valid entity handles, the third parameter is optional: checkrange(entity, target, int animnum)\n");
+    printf_error("function needs at least 2 valid entity handles, the third parameter is optional: checkrange(entity, target, int animnum)\n");
     *pretvar = NULL;
     return E_FAIL;
 }
@@ -10418,7 +10421,7 @@ HRESULT openbor_setspawnentry(ScriptVariant **varlist, ScriptVariant **pretvar, 
     {
         if(varlist[0]->vt != VT_STR)
         {
-            printf("You must give a string value for spawn entry property name.\n");
+            printf_warn("you must give a string value for spawn entry property name.\n");
         }
         *pretvar = NULL;
         return E_FAIL;
@@ -10433,7 +10436,7 @@ HRESULT openbor_setspawnentry(ScriptVariant **varlist, ScriptVariant **pretvar, 
     case _sse_name:
         if(arg->vt != VT_STR)
         {
-            printf("You must use a string value for spawn entry's name property: function setspawnentry.\n");
+            printf_warn("you must use a string value for spawn entry's name property: function setspawnentry.\n");
             goto setspawnentry_error;
         }
         spawnentry.model = findmodel((char *)StrCache_Get(arg->strVal));
@@ -11202,7 +11205,7 @@ HRESULT openbor_fademusic(ScriptVariant **varlist , ScriptVariant **pretvar, int
     return S_OK;
 
 fademusic_error:
-    printf("Function requires 1 value, with an optional 3 for music triggering: fademusic_error(float fade, char name, int loop, unsigned long offset)\n");
+    printf_error("function requires 1 value, with an optional 3 for music triggering: fademusic_error(float fade, char name, int loop, unsigned long offset)\n");
     return E_FAIL;
 }
 
@@ -11237,7 +11240,7 @@ HRESULT openbor_setmusicvolume(ScriptVariant **varlist , ScriptVariant **pretvar
     return S_OK;
 
 setmusicvolume_error:
-    printf("values must be integers: setmusicvolume(int left, (optional)int right)\n");
+    printf_error("values must be integers: setmusicvolume(int left, (optional)int right)\n");
     return E_FAIL;
 }
 
@@ -11406,7 +11409,7 @@ HRESULT openbor_playsample(ScriptVariant **varlist , ScriptVariant **pretvar, in
 
 playsample_error:
     *pretvar = NULL;
-    printf("Function requires 6 integer values: playsample(int id, unsigned int priority, int lvolume, int rvolume, unsigned int speed, int loop)\n");
+    printf_error("function requires 6 integer values: playsample(int id, unsigned int priority, int lvolume, int rvolume, unsigned int speed, int loop)\n");
     return E_FAIL;
 }
 
@@ -11441,7 +11444,7 @@ HRESULT openbor_loadsample(ScriptVariant **varlist , ScriptVariant **pretvar, in
     return S_OK;
 
 loadsample_error:
-    printf("Function requires 1 string value and optional log value: loadsample(string {filename} integer {log})\n");
+    printf_error("function requires 1 string value and optional log value: loadsample(string {filename} integer {log})\n");
     *pretvar = NULL;
     return E_FAIL;
 }
@@ -11465,7 +11468,7 @@ HRESULT openbor_unloadsample(ScriptVariant **varlist , ScriptVariant **pretvar, 
     return S_OK;
 
 unloadsample_error:
-    printf("Function requires 1 integer value: unloadsample(int id)\n");
+    printf_error("function requires 1 integer value: unloadsample(int id)\n");
     return E_FAIL;
 }
 
@@ -11492,7 +11495,7 @@ HRESULT openbor_fadeout(ScriptVariant **varlist , ScriptVariant **pretvar, int p
     return S_OK;
 
 fade_out_error:
-    printf("Function requires 2 integer values: fade_out(int type, int speed)\n");
+    printf_error("function requires 2 integer values: fade_out(int type, int speed)\n");
     return E_FAIL;
 }
 
@@ -11518,7 +11521,7 @@ HRESULT openbor_changepalette(ScriptVariant **varlist , ScriptVariant **pretvar,
     return S_OK;
 
 changepalette_error:
-    printf("Function requires 1 integer value: changepalette(int index)\n");
+    printf_error("function requires 1 integer value: changepalette(int index)\n");
     return E_FAIL;
 }
 
@@ -11557,7 +11560,7 @@ HRESULT openbor_changelight(ScriptVariant **varlist , ScriptVariant **pretvar, i
 
     return S_OK;
 changelight_error:
-    printf("Function requires 2 integer values: changepalette(int x, int z)\n");
+    printf_error("function requires 2 integer values: changepalette(int x, int z)\n");
     return E_FAIL;
 }
 
@@ -11594,7 +11597,7 @@ HRESULT openbor_changeshadowcolor(ScriptVariant **varlist , ScriptVariant **pret
 
     return S_OK;
 changeshadowcolor_error:
-    printf("Function requires at least 1 integer value, the 2nd integer parameter is optional: changepalette(int colorindex, int alpha)\n");
+    printf_error("function requires at least 1 integer value, the 2nd integer parameter is optional: changepalette(int colorindex, int alpha)\n");
     return E_FAIL;
 }
 
@@ -11651,7 +11654,7 @@ HRESULT openbor_gettextobjproperty(ScriptVariant **varlist , ScriptVariant **pre
 
     if(FAILED(ScriptVariant_IntegerValue(varlist[0], &ind)))
     {
-        printf("Function's 1st argument must be a numeric value: gettextproperty(int index, \"property\")\n");
+        printf_error("function's 1st argument must be a numeric value: gettextproperty(int index, \"property\")\n");
         goto gettextobjproperty_error;
     }
 
@@ -11668,7 +11671,7 @@ HRESULT openbor_gettextobjproperty(ScriptVariant **varlist , ScriptVariant **pre
     {
         if(varlist[1]->vt != VT_STR)
         {
-            printf("Function gettextobjproperty must have a string property name.\n");
+            printf_error("function gettextobjproperty must have a string property name.\n");
         }
         goto gettextobjproperty_error;
     }
@@ -11739,13 +11742,13 @@ HRESULT openbor_changetextobjproperty(ScriptVariant **varlist , ScriptVariant **
 
     if(paramCount < 3)
     {
-        printf("Function needs at last 3 parameters: %s\n", ctotext);
+        printf_error("function needs at last 3 parameters: %s\n", ctotext);
         return E_FAIL;
     }
 
     if(FAILED(ScriptVariant_IntegerValue(varlist[0], &ind)))
     {
-        printf("Function's 1st argument must be a numeric value: %s\n", ctotext);
+        printf_error("function's 1st argument must be a numeric value: %s\n", ctotext);
         return E_FAIL;
     }
 
@@ -11753,7 +11756,7 @@ HRESULT openbor_changetextobjproperty(ScriptVariant **varlist , ScriptVariant **
 
     if(ind < 0)
     {
-        printf("Invalid textobj index, must be >= 0\n");
+        printf_error("invalid textobj index, must be >= 0\n");
         return E_FAIL;
     }
     else if (ind >= level->numtextobjs)
@@ -11764,7 +11767,7 @@ HRESULT openbor_changetextobjproperty(ScriptVariant **varlist , ScriptVariant **
 
     if(varlist[1]->vt != VT_INTEGER)
     {
-        printf("Invalid property type for changetextobjproperty.\n");
+        printf_error("invalid property type for changetextobjproperty.\n");
         return E_FAIL;
     }
 
@@ -11850,7 +11853,7 @@ HRESULT openbor_changetextobjproperty(ScriptVariant **varlist , ScriptVariant **
 
 changetextobjproperty_error:
     ScriptVariant_ToString(varlist[2], buf);
-    printf("Invalid textobj value: %s\n", buf);
+    printf_error("invalid textobj value: %s\n", buf);
     return E_FAIL;
 }
 
@@ -11867,19 +11870,19 @@ HRESULT openbor_settextobj(ScriptVariant **varlist , ScriptVariant **pretvar, in
 
     if(paramCount < 6)
     {
-        printf("Function needs at least 6 parameters: %s\n", stotext);
+        printf_error("function needs at least 6 parameters: %s\n", stotext);
         return E_FAIL;
     }
 
     if(FAILED(ScriptVariant_IntegerValue(varlist[0], &ind)))
     {
-        printf("Function's 1st argument must be a numeric value: %s\n", stotext);
+        printf_error("function's 1st argument must be a numeric value: %s\n", stotext);
         return E_FAIL;
     }
 
     if(ind < 0)
     {
-        printf("Invalid textobj index, must be >= 0\n");
+        printf_error("invalid textobj index, must be >= 0\n");
         return E_FAIL;
     }
     else if(ind >= level->numtextobjs)
@@ -11925,7 +11928,7 @@ HRESULT openbor_settextobj(ScriptVariant **varlist , ScriptVariant **pretvar, in
     return S_OK;
 
 settextobj_error:
-    printf("Invalid value(s) for settextobj: %s\n", stotext);
+    printf_error("invalid value(s) for settextobj: %s\n", stotext);
     return E_FAIL;
 }
 
@@ -11938,13 +11941,13 @@ HRESULT openbor_cleartextobj(ScriptVariant **varlist , ScriptVariant **pretvar, 
 
     if(paramCount < 1)
     {
-        printf("Function needs at least 1 parameter: %s\n", cltotext);
+        printf_error("function needs at least 1 parameter: %s\n", cltotext);
         return E_FAIL;
     }
 
     if(FAILED(ScriptVariant_IntegerValue(varlist[0], &ind)))
     {
-        printf("Function's 1st argument must be a numeric value: %s\n", cltotext);
+        printf_error("function's 1st argument must be a numeric value: %s\n", cltotext);
         return E_FAIL;
     }
 
@@ -12467,15 +12470,15 @@ HRESULT openbor_getlayerproperty(ScriptVariant **varlist , ScriptVariant **pretv
 
 getlayerproperty_error:
     *pretvar = NULL;
-    printf("Function getlayerproperty must have 3 parameters: layertype, index and propertyname\n");
+    printf_error("function getlayerproperty must have 3 parameters: layertype, index and propertyname\n");
     return E_FAIL;
 getlayerproperty_error2:
     *pretvar = NULL;
-    printf("Layer not found!\n");
+    printf_error("layer not found!\n");
     return E_FAIL;
 getlayerproperty_error3:
     *pretvar = NULL;
-    printf("Bad property name or value.\n");
+    printf_error("bad property name or value.\n");
     return E_FAIL;
 }
 
@@ -12517,13 +12520,13 @@ HRESULT openbor_changelayerproperty(ScriptVariant **varlist , ScriptVariant **pr
     return S_OK;
 
 chglayerproperty_error:
-    printf("Function changelayerproperty must have 4 parameters: layertype, index, propertyname and value\n");
+    printf_error("function changelayerproperty must have 4 parameters: layertype, index, propertyname and value\n");
     return E_FAIL;
 chglayerproperty_error2:
-    printf("Layer not found!\n");
+    printf_error("layer not found!\n");
     return E_FAIL;
 chglayerproperty_error3:
-    printf("Layer property not understood or bad value.\n");
+    printf_error("layer property not understood or bad value.\n");
     return E_FAIL;
 }
 
@@ -12547,7 +12550,7 @@ HRESULT openbor_shutdown(ScriptVariant **varlist , ScriptVariant **pretvar, int 
 
     return S_OK;
 shutdown_error:
-    printf("shutdown(status, message): both parameters are optional but must be valid.\n");
+    printf_error("shutdown(status, message): both parameters are optional but must be valid.\n");
     return E_FAIL;
 }
 
@@ -12583,7 +12586,7 @@ HRESULT openbor_jumptobranch(ScriptVariant **varlist , ScriptVariant **pretvar, 
 
     return S_OK;
 jumptobranch_error:
-    printf("Function requires 1 string value, the second argument is optional(int): jumptobranch(name, immediate)\n");
+    printf_error("function requires 1 string value, the second argument is optional(int): jumptobranch(name, immediate)\n");
     return E_FAIL;
 }
 
@@ -12725,7 +12728,7 @@ HRESULT openbor_array(ScriptVariant **varlist , ScriptVariant **pretvar, int par
 
     if(paramCount < 1 || FAILED(ScriptVariant_IntegerValue(varlist[0], &size)) || size < 0)
     {
-        printf("Function requires 1 positive int value: array(int size)\n");
+        printf_error("function requires 1 positive int value: array(int size)\n");
         goto array_error;
     }
 
@@ -12735,7 +12738,7 @@ HRESULT openbor_array(ScriptVariant **varlist , ScriptVariant **pretvar, int par
 
     if((*pretvar)->ptrVal == NULL)
     {
-        printf("Not enough memory: array(%d)\n", (int)size);
+        printf_error("not enough memory: array(%d)\n", (int)size);
         goto array_error;
     }
 
@@ -12771,7 +12774,7 @@ HRESULT openbor_size(ScriptVariant **varlist , ScriptVariant **pretvar, int para
 
     return S_OK;
 size_error:
-    printf("Function requires 1 array handle: %s(array)\n", "size");
+    printf_error("function requires 1 array handle: %s(array)\n", "size");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -12812,7 +12815,7 @@ HRESULT openbor_get(ScriptVariant **varlist , ScriptVariant **pretvar, int param
     return S_OK;
 
 get_error:
-    printf("Function requires 1 array handle and 1 int value: get(array, int index)\n");
+    printf_error("function requires 1 array handle and 1 int value: get(array, int index)\n");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -12845,7 +12848,7 @@ HRESULT openbor_set(ScriptVariant **varlist , ScriptVariant **pretvar, int param
     return S_OK;
 
 set_error:
-    printf("Function requires 1 array handle, 1 int value and 1 value: set(array, int index, value)\n");
+    printf_error("function requires 1 array handle, 1 int value and 1 value: set(array, int index, value)\n");
     return E_FAIL;
 }
 
@@ -12877,7 +12880,7 @@ HRESULT openbor_delete(ScriptVariant **varlist , ScriptVariant **pretvar, int pa
     return S_OK;
 
 set_error:
-    printf("Function requires 1 array handle and 1 int value (index): delete(array, index)\n");
+    printf_error("function requires 1 array handle and 1 int value (index): delete(array, index)\n");
     return E_FAIL;
 }
 
@@ -12909,7 +12912,7 @@ HRESULT openbor_add(ScriptVariant **varlist , ScriptVariant **pretvar, int param
     return S_OK;
 
 add_error:
-    printf("Function requires 1 array handle and 1 int value (index): add(array, index)\n");
+    printf_error("function requires 1 array handle and 1 int value (index): add(array, index)\n");
     return E_FAIL;
 }
 
@@ -12928,7 +12931,7 @@ HRESULT openbor_reset(ScriptVariant **varlist , ScriptVariant **pretvar, int par
 
     return S_OK;
 reset_error:
-    printf("Function requires 1 array handle: %s(array)\n", "reset");
+    printf_error("function requires 1 array handle: %s(array)\n", "reset");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -12947,7 +12950,7 @@ HRESULT openbor_next(ScriptVariant **varlist , ScriptVariant **pretvar, int para
 
     return S_OK;
 next_error:
-    printf("Function requires 1 array handle: %s(array)\n", "next");
+    printf_error("function requires 1 array handle: %s(array)\n", "next");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -12966,7 +12969,7 @@ HRESULT openbor_previous(ScriptVariant **varlist , ScriptVariant **pretvar, int 
 
     return S_OK;
 previous_error:
-    printf("Function requires 1 array handle: %s(array)\n", "previous");
+    printf_error("function requires 1 array handle: %s(array)\n", "previous");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -12985,7 +12988,7 @@ HRESULT openbor_islast(ScriptVariant **varlist , ScriptVariant **pretvar, int pa
 
     return S_OK;
 islast_error:
-    printf("Function requires 1 array handle: %s(array)\n", "islast");
+    printf_error("function requires 1 array handle: %s(array)\n", "islast");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -13004,7 +13007,7 @@ HRESULT openbor_isfirst(ScriptVariant **varlist , ScriptVariant **pretvar, int p
 
     return S_OK;
 isfirst_error:
-    printf("Function requires 1 array handle: %s(array)\n", "isfirst");
+    printf_error("function requires 1 array handle: %s(array)\n", "isfirst");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -13032,7 +13035,7 @@ HRESULT openbor_key(ScriptVariant **varlist , ScriptVariant **pretvar, int param
 
     return S_OK;
 key_error:
-    printf("Function requires 1 array handle: %s(array)\n", "key");
+    printf_error("function requires 1 array handle: %s(array)\n", "key");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -13059,7 +13062,7 @@ HRESULT openbor_value(ScriptVariant **varlist , ScriptVariant **pretvar, int par
 
     return S_OK;
 value_error:
-    printf("Function requires 1 array handle: %s(array)\n", "value");
+    printf_error("function requires 1 array handle: %s(array)\n", "value");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -13095,7 +13098,7 @@ HRESULT openbor_allocscreen(ScriptVariant **varlist , ScriptVariant **pretvar, i
 
     if((*pretvar)->ptrVal == NULL)
     {
-        printf("Not enough memory: allocscreen(%d, %d)\n", (int)w, (int)h);
+        printf_error("not enough memory: allocscreen(%d, %d)\n", (int)w, (int)h);
         (*pretvar) = NULL;
         return E_FAIL;
     }
@@ -13103,7 +13106,7 @@ HRESULT openbor_allocscreen(ScriptVariant **varlist , ScriptVariant **pretvar, i
     return S_OK;
 
 allocscreen_error:
-    printf("Function requires 2 int values: allocscreen(int width, int height)\n");
+    printf_error("function requires 2 int values: allocscreen(int width, int height)\n");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -13127,7 +13130,7 @@ HRESULT openbor_clearscreen(ScriptVariant **varlist , ScriptVariant **pretvar, i
 
     if(screen == NULL)
     {
-        printf("Error: NULL pointer passed to clearscreen(void screen)\n");
+        printf_error("NULL pointer passed to clearscreen(void screen)\n");
         *pretvar = NULL;
         return E_FAIL;
     }
@@ -13135,7 +13138,7 @@ HRESULT openbor_clearscreen(ScriptVariant **varlist , ScriptVariant **pretvar, i
     return S_OK;
 
 clearscreen_error:
-    printf("Function requires a screen pointer: clearscreen(void screen)\n");
+    printf_error("function requires a screen pointer: clearscreen(void screen)\n");
     return E_FAIL;
 }
 
@@ -13536,7 +13539,7 @@ HRESULT openbor_changedrawmethod(ScriptVariant **varlist , ScriptVariant **pretv
     return S_OK;
 
 changedm_error:
-    printf("Function changedrawmethod must have at least 3 parameters: entity, propertyname, value\n");
+    printf_error("function changedrawmethod must have at least 3 parameters: entity, propertyname, value\n");
     return E_FAIL;
 }
 
@@ -13707,7 +13710,7 @@ HRESULT openbor_getdrawmethod(ScriptVariant **varlist , ScriptVariant **pretvar,
     return S_OK;
 
 getdm_error:
-    printf("Function getdrawmethod must have at least 2 parameters: entity, propertyname\n");
+    printf_error("function getdrawmethod must have at least 2 parameters: entity, propertyname\n");
     *pretvar = NULL;
     return E_FAIL;
 }
@@ -13797,7 +13800,7 @@ HRESULT openbor_setdrawmethod(ScriptVariant **varlist , ScriptVariant **pretvar,
     return S_OK;
 
 setdrawmethod_error:
-    printf("Function need a valid entity handle and at least 1 interger parameter, setdrawmethod(entity, int flag, int scalex, int scaley, int flipx, int flipy, int shiftx, int alpha, int remap, int fillcolor, int rotate, int fliprotate, int transparencybg, void* colourmap, centerx, centery)\n");
+    printf_error("function need a valid entity handle and at least 1 interger parameter, setdrawmethod(entity, int flag, int scalex, int scaley, int flipx, int flipy, int shiftx, int alpha, int remap, int fillcolor, int rotate, int fliprotate, int transparencybg, void* colourmap, centerx, centery)\n");
     return E_FAIL;
 }
 
@@ -13842,7 +13845,7 @@ HRESULT openbor_updateframe(ScriptVariant **varlist , ScriptVariant **pretvar, i
     return S_OK;
 
 updateframe_error:
-    printf("Function need a valid entity handle and at an interger parameter: updateframe(entity, int frame)\n");
+    printf_error("function need a valid entity handle and at an interger parameter: updateframe(entity, int frame)\n");
     return E_FAIL;
 }
 
@@ -13906,7 +13909,7 @@ HRESULT openbor_executeanimation(ScriptVariant **varlist , ScriptVariant **pretv
     return S_OK;
 
 executeanimation_error:
-    printf("Function need a valid entity handle, the other 2 integer parameters are optional: performattack(entity, int anim, int resetable)\n");
+    printf_error("function need a valid entity handle, the other 2 integer parameters are optional: performattack(entity, int anim, int resetable)\n");
     return E_FAIL;
 }
 
@@ -13969,7 +13972,7 @@ HRESULT openbor_performattack(ScriptVariant **varlist , ScriptVariant **pretvar,
     return S_OK;
 
 performattack_error:
-    printf("Function need a valid entity handle, the other 2 integer parameters are optional: performattack(entity, int anim, int resetable)\n");
+    printf_error("function need a valid entity handle, the other 2 integer parameters are optional: performattack(entity, int anim, int resetable)\n");
     return E_FAIL;
 }
 
@@ -14046,7 +14049,7 @@ HRESULT openbor_setidle(ScriptVariant **varlist , ScriptVariant **pretvar, int p
     return S_OK;
 
 setidle_error:
-    printf("Function need a valid entity handle, the other 3 integer parameters are optional: setidle(entity, int anim, int resetable, int stalladd)\n");
+    printf_error("function need a valid entity handle, the other 3 integer parameters are optional: setidle(entity, int anim, int resetable, int stalladd)\n");
     return E_FAIL;
 }
 
@@ -14078,7 +14081,7 @@ HRESULT openbor_getentity(ScriptVariant **varlist , ScriptVariant **pretvar, int
     return S_OK;
 
 getentity_error:
-    printf("Function need an integer parameter: getentity(int index_in_list)\n");
+    printf_error("function need an integer parameter: getentity(int index_in_list)\n");
     *pretvar = NULL;
     return E_FAIL;
 }
@@ -14118,7 +14121,7 @@ HRESULT openbor_loadmodel(ScriptVariant **varlist , ScriptVariant **pretvar, int
     return S_OK;
 
 loadmodel_error:
-    printf("Function needs a string and integer parameters: loadmodel(name, unload, selectable)\n");
+    printf_error("function needs a string and integer parameters: loadmodel(name, unload, selectable)\n");
     ScriptVariant_Clear(*pretvar);
     *pretvar = NULL;
     return E_FAIL;
@@ -14152,7 +14155,7 @@ HRESULT openbor_unload_model(ScriptVariant **varlist , ScriptVariant **pretvar, 
 	return S_OK;
 
 	unload_model_error:
-    printf("Function needs a string parameter: unload_model(name)\n");
+    printf_error("function needs a string parameter: unload_model(name)\n");
     ScriptVariant_Clear(*pretvar);
     *pretvar = NULL;
     return E_FAIL;
@@ -14188,7 +14191,7 @@ HRESULT openbor_loadsprite(ScriptVariant **varlist , ScriptVariant **pretvar, in
     return S_OK;
 
 loadsprite_error:
-    printf("Function need a string parameter: loadsprite(path)\n");
+    printf_error("function need a string parameter: loadsprite(path)\n");
     ScriptVariant_Clear(*pretvar);
     *pretvar = NULL;
     return E_FAIL;
@@ -14241,14 +14244,14 @@ HRESULT openbor_playwebm(ScriptVariant **varlist , ScriptVariant **pretvar, int 
         ScriptVariant_ChangeType(*pretvar, VT_INTEGER);
         (*pretvar)->lVal = (LONG)playwebm(StrCache_Get(varlist[0]->strVal), (int)temp);
     #else
-        printf("Skipping video %s; WebM playback not supported on this platform\n");
+        printf_warn("skipping video %s; WebM playback not supported on this platform\n");
         *pretvar = NULL;
     #endif
 
     return S_OK;
 
 playwebm_error:
-    printf("Function need a string parameter, other parameters are optional: playwebm(path, int noskip)\n");
+    printf_error("function need a string parameter, other parameters are optional: playwebm(path, int noskip)\n");
     *pretvar = NULL;
     return E_FAIL;
 }
@@ -14285,7 +14288,7 @@ HRESULT openbor_playgif(ScriptVariant **varlist , ScriptVariant **pretvar, int p
     return S_OK;
 
 playgif_error:
-    printf("Function need a string parameter, other parameters are optional: playgif(path, int x, int y, int noskip)\n");
+    printf_error("function need a string parameter, other parameters are optional: playgif(path, int x, int y, int noskip)\n");
     *pretvar = NULL;
     return E_FAIL;
 }
@@ -14456,7 +14459,7 @@ HRESULT openbor_adjustwalkanimation(ScriptVariant **varlist , ScriptVariant **pr
 
     return S_OK;
 adjustwalkanimation_error:
-    printf("Function adjustwalkanimation(entity, target), both parameters are optional, but must be valid.");
+    printf_error("function adjustwalkanimation(entity, target), both parameters are optional, but must be valid.");
     return E_FAIL;
 }
 
@@ -14492,7 +14495,7 @@ HRESULT openbor_finditem(ScriptVariant **varlist , ScriptVariant **pretvar, int 
 finditem_error:
 
     *pretvar = NULL;
-    printf("Function finditem(entity), entity is optional, but must be valid.");
+    printf_error("function finditem(entity), entity is optional, but must be valid.");
     return E_FAIL;
 }
 
@@ -14540,7 +14543,7 @@ HRESULT openbor_pickup(ScriptVariant **varlist , ScriptVariant **pretvar, int pa
 
     return S_OK;
 pickup_error:
-    printf("Function pickup(entity, item), handles must be valid.");
+    printf_error("function pickup(entity, item), handles must be valid.");
     return E_FAIL;
 }
 
@@ -14622,7 +14625,7 @@ wp_error:
         free(wp);
     }
     wp = NULL;
-    printf("Function waypoints requires a valid entity handle and a list of x, z value pairs.");
+    printf_error("function waypoints requires a valid entity handle and a list of x, z value pairs.");
     return E_FAIL;
 }
 
@@ -14669,7 +14672,7 @@ HRESULT openbor_testmove(ScriptVariant **varlist , ScriptVariant **pretvar, int 
     return S_OK;
 testmove_error:
     *pretvar = NULL;
-    printf("Function testmove(entity, x, z)");
+    printf_error("function testmove(entity, x, z)");
     return E_FAIL;
 }
 
@@ -14716,7 +14719,7 @@ HRESULT openbor_drawspriteq(ScriptVariant **varlist , ScriptVariant **pretvar, i
     return S_OK;
 
 drawsq_error:
-    printf("Function drawspriteq needs a valid screen handle and all other paramaters must be integers.");
+    printf_error("function drawspriteq needs a valid screen handle and all other paramaters must be integers.");
     return E_FAIL;
 
 }
@@ -15000,19 +15003,19 @@ HRESULT openbor_getgfxproperty(ScriptVariant **varlist , ScriptVariant **pretvar
     return S_OK;
 
 ggp_error:
-    printf("Function getgfxproperty must have a valid handle and a property name.\n");
+    printf_error("function getgfxproperty must have a valid handle and a property name.\n");
     *pretvar = NULL;
     return E_FAIL;
 ggp_error2:
-    printf("Function getgfxproperty encountered an invalid handle.\n");
+    printf_error("function getgfxproperty encountered an invalid handle.\n");
     *pretvar = NULL;
     return E_FAIL;
 ggp_error3:
-    printf("You need to specify x, y value for getgfxproperty.\n");
+    printf_error("you need to specify x, y value for getgfxproperty.\n");
     *pretvar = NULL;
     return E_FAIL;
 ggp_error4:
-    printf("Invalid x or y value for getgfxproperty.\n");
+    printf_error("invalid x or y value for getgfxproperty.\n");
     *pretvar = NULL;
     return E_FAIL;
 }
@@ -15048,7 +15051,7 @@ HRESULT openbor_allocscript(ScriptVariant **varlist , ScriptVariant **pretvar, i
     return S_OK;
 
 as_error:
-    printf("Function allocscript failed to alloc enough memory.\n");
+    printf_error("function allocscript failed to alloc enough memory.\n");
     (*pretvar) = NULL;
     return E_FAIL;
 }
@@ -15086,7 +15089,7 @@ HRESULT openbor_loadscript(ScriptVariant **varlist , ScriptVariant **pretvar, in
     return S_OK;
 
 ls_error:
-    printf("Function loadscript requires a valid script handle and a path.\n");
+    printf_error("function loadscript requires a valid script handle and a path.\n");
     return E_FAIL;
 }
 
@@ -15111,7 +15114,7 @@ HRESULT openbor_compilescript(ScriptVariant **varlist , ScriptVariant **pretvar,
     return S_OK;
 
 cs_error:
-    printf("Function compilescript requires a valid script handle.\n");
+    printf_error("function compilescript requires a valid script handle.\n");
     return E_FAIL;
 }
 
@@ -15136,7 +15139,7 @@ HRESULT openbor_executescript(ScriptVariant **varlist , ScriptVariant **pretvar,
     return S_OK;
 
 cs_error:
-    printf("Function executescript requires a valid script handle.\n");
+    printf_error("function executescript requires a valid script handle.\n");
     return E_FAIL;
 }
 
@@ -15237,7 +15240,7 @@ HRESULT openbor_recordinputs(ScriptVariant **varlist , ScriptVariant **pretvar, 
         case A_REC_REC:
             if( paramCount < 3 || varlist[1]->vt != VT_STR || varlist[2]->vt != VT_STR )
             {
-                printf("Function recordinputs requires a pathname and filename parameters.\n");
+                printf_error("function recordinputs requires a pathname and filename parameters.\n");
                 return E_FAIL;
             }
             strcpy(playrecstatus->path,(char*)StrCache_Get(varlist[1]->strVal));
@@ -15250,7 +15253,7 @@ HRESULT openbor_recordinputs(ScriptVariant **varlist , ScriptVariant **pretvar, 
         case A_REC_PLAY:
             if( paramCount < 3 || varlist[1]->vt != VT_STR || varlist[2]->vt != VT_STR )
             {
-                printf("Function recordinputs requires a pathname and filename parameters.\n");
+                printf_error("function recordinputs requires a pathname and filename parameters.\n");
                 return E_FAIL;
             }
             strcpy(playrecstatus->path,(char*)StrCache_Get(varlist[1]->strVal));

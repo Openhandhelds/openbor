@@ -274,7 +274,7 @@ static int openpng(const char *filename, const char *packfilename)
         if (!warned_about_interlacing)
         {
             // Only print this warning once
-            printf("Warning: The image %s is interlaced. For faster load times, use non-interlaced images.\n", filename);
+            printf_warn("the image %s is interlaced. For faster load times, use non-interlaced images.\n", filename);
             warned_about_interlacing = 1;
         }
     }
@@ -379,7 +379,7 @@ static void png_decode_regular(unsigned char *buf, unsigned char *inflated_data,
             }
             default:
             {
-                printf("invalid PNG filter %i for line %u\n", inflated_data[y * (width + 1)], y);
+                printf_error("invalid PNG filter %i for line %u\n", inflated_data[y * (width + 1)], y);
                 assert(!"invalid PNG filter");
             }
         }
@@ -572,7 +572,7 @@ static int readpng(unsigned char *buf, unsigned char *pal, int max_width, int ma
             }
             else if (zret != Z_OK)
             {
-                printf("inflate failed: %i\n", zret);
+                printf_error("inflate failed: %i\n", zret);
                 goto readpng_abort;
             }
             png_data_ptr += chunk_size + 4;
@@ -592,7 +592,7 @@ static int readpng(unsigned char *buf, unsigned char *pal, int max_width, int ma
             // data for any other kind of image doesn't fill the buffer, then the image data is incomplete.
             if (!(png_is_interlaced && width < 8))
             {
-                printf("error: incomplete compressed stream\n");
+                printf_error("incomplete compressed stream\n");
                 goto readpng_abort;
             }
         }
@@ -1292,25 +1292,25 @@ static int readimage(unsigned char *buf, unsigned char *pal, int maxwidth, int m
     case OT_GIF:
         result = readgif(buf, pal, maxwidth, maxheight);
 #ifdef VERBOSE
-        printf("calling readimage %p %p %d %d with format %s, result is %d\n", buf, pal, maxwidth, maxheight, "GIF", result);
+        printf_debug_full("calling readimage %p %p %d %d with format %s, result is %d\n", buf, pal, maxwidth, maxheight, "GIF", result);
 #endif
         break;
     case OT_PCX:
         result = readpcx(buf, pal, maxwidth, maxheight);
 #ifdef VERBOSE
-        printf("calling readimage %p %p %d %d with format %s, result is %d\n", buf, pal, maxwidth, maxheight, "PCX", result);
+        printf_debug_full("calling readimage %p %p %d %d with format %s, result is %d\n", buf, pal, maxwidth, maxheight, "PCX", result);
 #endif
         break;
     case OT_BMP:
         result = readbmp(buf, pal, maxwidth, maxheight);
 #ifdef VERBOSE
-        printf("calling readimage %p %p %d %d with format %s, result is %d\n", buf, pal, maxwidth, maxheight, "BMP", result);
+        printf_debug_full("calling readimage %p %p %d %d with format %s, result is %d\n", buf, pal, maxwidth, maxheight, "BMP", result);
 #endif
         break;
     case OT_PNG:
         result = readpng(buf, pal, maxwidth, maxheight);
 #ifdef VERBOSE
-        printf("calling readimage %p %p %d %d with format %s, result is %d\n", buf, pal, maxwidth, maxheight, "PNG", result);
+        printf_debug_full("calling readimage %p %p %d %d with format %s, result is %d\n", buf, pal, maxwidth, maxheight, "PNG", result);
 #endif
         break;
     }
@@ -1344,7 +1344,7 @@ int loadscreen(char *filename, char *packfile, unsigned char *pal, int format, s
     int result;
     unsigned char *p;
 #ifdef VERBOSE
-    printf("loadscreen called packfile: %s, filename %s\n", packfile, filename);
+    printf_debug_full("loadscreen called packfile: %s, filename %s\n", packfile, filename);
 #endif
     if((*screen))
     {
@@ -1389,7 +1389,7 @@ int loadscreen32(char *filename, char *packfile, s_screen **screen)
     int handle, filesize;
     char fnam[128];
 #ifdef VERBOSE
-    printf("loadscreen called packfile: %s, filename %s\n", packfile, filename);
+    printf_debug_full("loadscreen called packfile: %s, filename %s\n", packfile, filename);
 #endif
     if((*screen))
     {

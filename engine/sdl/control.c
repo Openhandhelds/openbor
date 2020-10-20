@@ -254,7 +254,8 @@ void getPads(Uint8* keystate, Uint8* keystate_def)
                     get_now_string(buffer, MAX_BUFFER_LEN, TIMESTAMP_PATTERN);
                     numjoy = SDL_NumJoysticks();
                     strcpy(joy_name,get_joystick_name(joysticks[i].Name));
-                    printf("Joystick: \"%s\" connected at port: %d at %s\n",joy_name,i,buffer);
+                    if(!is_log_disable())
+                        printf("Joystick: \"%s\" connected at port: %d at %s\n",joy_name,i,buffer);
                 }
                 break;
 
@@ -270,7 +271,8 @@ void getPads(Uint8* keystate, Uint8* keystate_def)
                         close_joystick(i);
                         numjoy = SDL_NumJoysticks();
                         strcpy(joy_name,get_joystick_name(joysticks[i].Name));
-                        printf("Joystick: \"%s\" disconnected from port: %d at %s\n",joy_name,i,buffer);
+                        if(!is_log_disable())
+                            printf("Joystick: \"%s\" disconnected from port: %d at %s\n",joy_name,i,buffer);
                     }
                 }
                 break;
@@ -367,12 +369,14 @@ void joystick_scan(int scan)
     {
         if(numjoy <= 0)
         {
-            printf("No Joystick(s) Found!\n");
+		    if(!is_log_disable())
+                printf("No Joystick(s) Found!\n");
             return;
         }
         else
         {
-            printf("\n%d joystick(s) found!\n", numjoy);
+            if(!is_log_disable())
+                printf("\n%d joystick(s) found!\n", numjoy);
         }
     }
 
@@ -387,14 +391,18 @@ void joystick_scan(int scan)
             // print JOY_MAX_INPUTS (32) spaces for alignment
             if(numjoy == 1)
             {
-                printf("%s - %d axes, %d buttons, %d hat(s)\n",
+                if(!is_log_disable())
+                    printf("%s - %d axes, %d buttons, %d hat(s)\n",
                                     get_joystick_name(joysticks[i].Name), joysticks[i].NumAxes, joysticks[i].NumButtons, joysticks[i].NumHats);
             }
             else if(numjoy > 1)
             {
-                if(i) printf("\n");
-                printf("%d. %s - %d axes, %d buttons, %d hat(s)\n", i + 1,
+                if(!is_log_disable())
+                {
+                    if(i) printf("\n");
+                    printf("%d. %s - %d axes, %d buttons, %d hat(s)\n", i + 1,
                         get_joystick_name(joysticks[i].Name), joysticks[i].NumAxes, joysticks[i].NumButtons, joysticks[i].NumHats);
+                }
             }
         }
 	}
@@ -409,7 +417,7 @@ void open_joystick(int i)
 
     if ( ( joystick[i] = SDL_JoystickOpen(i) ) == NULL )
     {
-       printf("\nWarning: Unable to initialize joystick in port: %d! SDL Error: %s\n", i, SDL_GetError());
+       printf_warn("unable to initialize joystick in port: %d! SDL Error: %s\n", i, SDL_GetError());
        return;
     }
     joysticks[i].NumHats = SDL_JoystickNumHats(joystick[i]);
@@ -424,7 +432,7 @@ void open_joystick(int i)
         //Get initialize rumble
         if( SDL_HapticRumbleInit( joystick_haptic[i] ) < 0 )
         {
-            printf("\nWarning: Unable to initialize rumble for joystick: %s in port: %d! SDL Error: %s\n", joysticks[i].Name, i, SDL_GetError());
+            printf_warn("unable to initialize rumble for joystick: %s in port: %d! SDL Error: %s\n", joysticks[i].Name, i, SDL_GetError());
         }
     }
 

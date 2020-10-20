@@ -31,6 +31,7 @@ char paksDir[MAX_FILENAME_LEN] = {"Paks"};
 char savesDir[MAX_FILENAME_LEN] = {"Saves"};
 char logsDir[MAX_FILENAME_LEN] = {"Logs"};
 char screenShotsDir[MAX_FILENAME_LEN] = {"ScreenShots"};
+char configsDir[MAX_FILENAME_LEN] = {"Configs"};
 
 // sleeps for the given number of microseconds
 #if _POSIX_C_SOURCE >= 199309L
@@ -113,6 +114,7 @@ int main(int argc, char *argv[])
         strcpy(paksDir, "/mnt/sdcard/OpenBOR/Paks");
         strcpy(savesDir, "/mnt/sdcard/OpenBOR/Saves");
         strcpy(logsDir, "/mnt/sdcard/OpenBOR/Logs");
+        strcpy(configsDir, "/mnt/sdcard/OpenBOR/Configs");
         strcpy(screenShotsDir, "/mnt/sdcard/OpenBOR/ScreenShots");
     }
     else
@@ -125,6 +127,8 @@ int main(int argc, char *argv[])
         strcat(savesDir, "/Saves");
         strcpy(logsDir, SDL_AndroidGetExternalStoragePath());
         strcat(logsDir, "/Logs");
+        strcpy(configsDir, SDL_AndroidGetExternalStoragePath());
+        strcat(configsDir, "/Configs");
         strcpy(screenShotsDir, SDL_AndroidGetExternalStoragePath());
         strcat(screenShotsDir, "/ScreenShots");
     }
@@ -132,10 +136,11 @@ int main(int argc, char *argv[])
     chdir(rootDir);
 #endif
 
-	dirExists(paksDir, 1);
-	dirExists(savesDir, 1);
-	dirExists(logsDir, 1);
-	dirExists(screenShotsDir, 1);
+    dirExists(paksDir, 1);
+    dirExists(savesDir, 1);
+    dirExists(logsDir, 1);
+    dirExists(configsDir, 1);
+    dirExists(screenShotsDir, 1);
 
 	Menu();
 #ifndef SKIP_CODE

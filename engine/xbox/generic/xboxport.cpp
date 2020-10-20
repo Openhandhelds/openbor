@@ -1144,6 +1144,7 @@ void CXBoxSample::initConsole( UINT32 idx, int isFavorite, int forceConfig )
 	// Create necessary directories First
 	CreateDirectory("d:\\Paks", NULL);
 	CreateDirectory("d:\\Saves", NULL);
+	CreateDirectory("d:\\Configs", NULL);
 	CreateDirectory("d:\\Logs", NULL);
 	CreateDirectory("d:\\ScreenShots", NULL);
 

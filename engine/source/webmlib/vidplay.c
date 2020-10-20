@@ -32,8 +32,6 @@
 #define PACKET_QUEUE_SIZE 20
 #define FRAME_QUEUE_SIZE 10
 
-#define debug_printf(...) //printf(__VA_ARGS__)
-
 typedef struct {
     int start;
     int size;
@@ -118,7 +116,7 @@ FixedSizeQueue *queue_init(int max_size)
 int queue_insert(FixedSizeQueue *queue, void *data)
 {
     mutex_lock(queue->mutex);
-    //SPIT("size=%i\n", queue->size);
+    printf_debug_full("(%p), size=%i\n", queue, queue->size);
     if (queue->size == queue->max_size)
     {
         while(cond_wait_timed(queue->not_full, queue->mutex, 10) != 0)
@@ -135,7 +133,7 @@ int queue_insert(FixedSizeQueue *queue, void *data)
     int index = (queue->start + queue->size) % queue->max_size;
     queue->data[index] = data;
     ++queue->size;
-    //SPIT("size=%i\n", queue->size);
+    printf_debug_full("(%p), size=%i\n", queue, queue->size);
     cond_signal(queue->not_empty);
     mutex_unlock(queue->mutex);
     return 0;
@@ -146,7 +144,7 @@ int queue_insert(FixedSizeQueue *queue, void *data)
 void *queue_get(FixedSizeQueue *queue)
 {
     mutex_lock(queue->mutex);
-    //SPIT("size=%i\n", queue->size);
+    printf_debug_full("(%p), size=%i\n", queue, queue->size);
     if (queue->size == 0)
     {
         while (cond_wait_timed(queue->not_empty, queue->mutex, 10) != 0)
@@ -163,7 +161,7 @@ void *queue_get(FixedSizeQueue *queue)
     void *data = queue->data[queue->start];
     --queue->size;
     queue->start = (queue->start + 1) % queue->max_size;
-    //SPIT("size=%i\n", queue->size);
+    printf_debug_full("(%p), size=%i\n", queue, queue->size);
     cond_signal(queue->not_full);
     mutex_unlock(queue->mutex);
     return data;
@@ -203,7 +201,8 @@ static int audio_decode_frame(audio_context *audio_ctx, uint8_t *audio_buf, int 
             uint64_t timestamp;
             unsigned chunk, num_chunks;
 
-            debug_printf("audio queue size=%i\n", audio_ctx->packet_queue->size);
+            printf_debug_full("(%p), audio queue size=%i\n", 
+                audio_ctx->packet_queue, audio_ctx->packet_queue->size);
             if ((pkt = queue_get(audio_ctx->packet_queue)) == NULL)
                 return -1;
             nestegg_packet_tstamp(pkt, &timestamp);
@@ -297,11 +296,12 @@ static void init_audio(nestegg *ctx, int track, audio_context *audio_ctx, int vo
     audio_ctx->frequency = (int)audioParams.rate;
     audio_ctx->avail_samples = audio_ctx->last_samples = 0;
     audio_ctx->packet_queue = queue_init(PACKET_QUEUE_SIZE);
-    printf("Audio track: %f Hz, %d channels, %d bits/sample\n",
+    if(!is_log_disable())
+        printf("Audio track: %f Hz, %d channels, %d bits/sample\n",
             audioParams.rate, audioParams.channels, audioParams.depth / audioParams.channels);
     if(audio_ctx->frequency % 11025)
     {
-        printf("Warning: the audio frequency (%i Hz) is suboptimal; resample to 44100 Hz for best quality\n",
+        printf_warn("the audio frequency (%i Hz) is suboptimal; resample to 44100 Hz for best quality\n",
                 audio_ctx->frequency);
     }
 
@@ -355,7 +355,8 @@ static int video_thread(void *data)
         unsigned int chunk, chunks;
         nestegg_packet *pkt;
 
-        debug_printf("video queue size=%i\n", ctx->packet_queue->size);
+        printf_debug_full("(%p), video queue size=%i\n", 
+            ctx->packet_queue, ctx->packet_queue->size);
         pkt = queue_get(ctx->packet_queue);
         if (quit_video || pkt == NULL) break;
         nestegg_packet_count(pkt, &chunks);
@@ -371,7 +372,7 @@ static int video_thread(void *data)
             vpx_codec_iter_t iter = NULL;
             if (vpx_codec_decode(&ctx->vpx_ctx, data, data_size, NULL, 0))
             {
-                printf("Error: libvpx failed to decode chunk\n");
+                printf_error("libvpx failed to decode chunk\n");
                 quit_video = 1;
                 break;
             }
@@ -393,7 +394,7 @@ static int video_thread(void *data)
 
                 if (queue_insert(ctx->frame_queue, (void *)frame) < 0)
                 {
-                    debug_printf("destroying last frame\n");
+                    printf_debug_full("(%p), destroying last frame\n", ctx->frame_queue);
                     yuv_frame_destroy(frame);
                     break;
                 }
@@ -416,7 +417,7 @@ static int init_video(nestegg *nestegg_ctx, int track, video_context *video_ctx)
 
     if (vpx_codec_dec_init(&(video_ctx->vpx_ctx), vpx_codec_vp8_dx(), NULL, 0))
     {
-        printf("Error: failed to initialize libvpx\n");
+        printf_error("failed to initialize libvpx\n");
         return -1;
     }
     video_ctx->width = video_params.width;
@@ -424,7 +425,8 @@ static int init_video(nestegg *nestegg_ctx, int track, video_context *video_ctx)
     video_ctx->display_width = video_params.display_width;
     video_ctx->display_height = video_params.display_height;
     nestegg_track_default_duration(nestegg_ctx, track, &(video_ctx->frame_delay));
-    printf("Video track: resolution=%i*%i, display resolution=%i*%i, %.2f frames/second\n",
+    if(!is_log_disable())
+        printf("Video track: resolution=%i*%i, display resolution=%i*%i, %.2f frames/second\n",
             video_params.width, video_params.height,
             video_params.display_width, video_params.display_height,
             1000000000.0 / video_ctx->frame_delay);
@@ -437,7 +439,7 @@ static void close_video(video_context *video_ctx)
 {
     if(vpx_codec_destroy(&(video_ctx->vpx_ctx)))
     {
-        printf("Warning: failed to destroy libvpx context: %s\n", vpx_codec_error(&video_ctx->vpx_ctx));
+        printf_warn("failed to destroy libvpx context: %s\n", vpx_codec_error(&video_ctx->vpx_ctx));
     }
     if(video_ctx->packet_queue)
     {
@@ -512,7 +514,7 @@ webm_context *webm_start_playback(const char *path, int volume)
     ctx->packhandle = openpackfile(path, packfile);
     if(ctx->packhandle < 0)
     {
-        printf("Error: Unable to open file %s for playback\n", path);
+        printf_error("unable to open file %s for playback\n", path);
         goto error1;
     }
     io.userdata = (void*)(size_t)ctx->packhandle;
@@ -531,7 +533,7 @@ webm_context *webm_start_playback(const char *path, int volume)
         {
             if(codec != NESTEGG_CODEC_VP8)
             {
-                printf("Error: unsupported video codec; only VP8 is supported\n");
+                printf_error("unsupported video codec; only VP8 is supported\n");
                 goto error3;
             }
             video_track = i;
@@ -540,7 +542,7 @@ webm_context *webm_start_playback(const char *path, int volume)
         {
             if(codec != NESTEGG_CODEC_VORBIS)
             {
-                printf("Error: unsupported audio codec; only Vorbis is supported\n");
+                printf_error("unsupported audio codec; only Vorbis is supported\n");
                 goto error3;
             }
             audio_track = i;
@@ -608,7 +610,8 @@ void webm_get_video_info(webm_context *ctx, yuv_video_mode *dims)
 
 yuv_frame *webm_get_next_frame(webm_context *ctx)
 {
-    debug_printf("frame queue size=%i\n", ctx->video_ctx.frame_queue->size);
+    printf_debug_full("(%p), frame queue size=%i\n", 
+        ctx->video_ctx.frame_queue, ctx->video_ctx.frame_queue->size);
     return (yuv_frame *)queue_get(ctx->video_ctx.frame_queue);
 }
 

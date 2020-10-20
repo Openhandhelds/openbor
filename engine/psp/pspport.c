@@ -1,4 +1,4 @@
-/*
+Save/*
  * OpenBOR - http://www.LavaLit.com
  * -----------------------------------------------------------------------
  * Licensed under the BSD license, see LICENSE in OpenBOR root for details.
@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
 	initGraphics(savedata.usetv, PIXEL_32);
 
 	dirExists("Saves", 1);
+	dirExists("Configs", 1);
 	dirExists("Paks", 1);
 	dirExists("Images", 1);
 	dirExists("Logs", 1);

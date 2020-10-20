@@ -70,7 +70,17 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef PP_TEST
-#define printf writeToLogFile
+int is_log_disable();
+#define printf_warn(msg, ...) writeToLogFile(LOG_WARNING_MSG, msg __VA_OPT__(,) __VA_ARGS__)
+#ifdef VERBOSE
+#define printf_debug(msg, ...) writeToLogFile(LOG_DEBUG_MSG, msg __VA_OPT__(,) __VA_ARGS__)
+#define printf_debug_full(msg, ...) writeToLogFile(LOG_DEBUG_MSG, "(%s:%s:%i) " msg, __FILE__, __func__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
+#else
+#define printf_debug(msg, ...)
+#define printf_debug_full(msg, ...)
+#endif
+#define printf_error(msg, ...) writeToLogFile(LOG_ERROR_MSG, msg __VA_OPT__(,) __VA_ARGS__)
+#define printf(msg, ...) writeToLogFile(LOG_INFO_MSG, msg __VA_OPT__(,) __VA_ARGS__)
 
 // redefine assert to write to the log file and exit nicely instead of aborting
 #undef assert

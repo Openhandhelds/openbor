@@ -499,6 +499,7 @@ s_slow_motion       slowmotion          = { .toggle     = SLOW_MOTION_OFF,
                                             .counter    = 0,
                                             .duration   = 2};
 int                 disablelog          = 0;
+int                 disablescriptlog    = 0;
 int                 currentspawnplayer  = 0;
 int					ent_list_size		= 0;
 int                 PLAYER_MIN_Z        = 160;
@@ -817,7 +818,7 @@ char *fill_s_loadingbar(s_loadingbar *s, e_loadingScreenType set, int bx, int by
             break;
         default:
             s->set = LS_TYPE_NONE;
-            printf("invalid loadingbg type %d!\n", set);
+            printf_warn("invalid loadingbg type %d!\n", set);
     }
     s->tf = tf;
     s->bar_position.x = bx;
@@ -837,13 +838,13 @@ static int buffer_file(char *filename, char **pbuffer, size_t *psize)
     *pbuffer = NULL;
     // Read file
 #ifdef VERBOSE
-    printf("file requested: %s.\n", filename);
+    printf_debug("file requested: %s.\n", filename);
 #endif
 
     if(!(handle = fopen(filename, "rb")) )
     {
 #ifdef VERBOSE
-        printf("couldnt get handle!\n");
+        printf_debug("couldn't get handle!\n");
 #endif
         return 0;
     }
@@ -891,13 +892,13 @@ int buffer_pakfile(char *filename, char **pbuffer, size_t *psize)
 
     // Read file
 #ifdef VERBOSE
-    printf("pakfile requested: %s.\n", filename); //ASDF
+    printf_debug("pakfile requested: %s.\n", filename); //ASDF
 #endif
 
     if((handle = openpackfile(filename, packfile)) < 0)
     {
 #ifdef VERBOSE
-        printf("couldnt get handle!\n");
+        printf_debug("couldn't get handle!\n");
 #endif
         return 0;
     }
@@ -938,7 +939,9 @@ int buffer_append(char **buffer, const char *str, size_t n, size_t *bufferlen, s
     }
     if(appendlen + *len + 1 > *bufferlen)
     {
-        //printf("*Debug* reallocating buffer...\n");
+#ifdef VERBOSE
+        printf_debug("reallocating buffer...\n");
+#endif        
         *buffer = realloc(*buffer, *bufferlen = appendlen + *len + 1024);
         if(*buffer == NULL)
         {
@@ -2618,6 +2621,64 @@ void saveasdefault()
 #endif
 }
 
+int is_log_disable()
+{
+    return disablelog;
+}
+
+void loadPlatformConfig(char* filename)
+{
+    size_t pos = 0;
+    ArgList arglist;
+    char argbuf[MAX_ARG_LEN + 1] = "";
+    if(filename != NULL)
+    {
+        char *buffer = NULL;
+        size_t size = 0;
+        buffer = readConfigFile(filename, &size);
+
+		if(buffer != NULL && size > 0)
+		{
+			// Now interpret the contents of buffer line by line
+			while(pos < size)
+			{
+				char* command;
+				if(ParseArgs(&arglist, buffer + pos, argbuf))
+				{
+					command = GET_ARG(0);
+					if(command && command[0])
+					{
+						printf_debug_full("Found '%s' in file '%s'\n", command, filename);
+						if(stricmp(command, "disablelog") == 0)
+						{
+							disablelog = GET_INT_ARG(1);
+						}
+						else if(stricmp(command, "disablescriptlog") == 0)
+						{
+							disablescriptlog = GET_INT_ARG(1);
+						}
+						else if(command && command[0])
+						{
+							printf_warn("unknown config entry in '%s': '%s'.\n", filename, command);
+						}
+					}
+				}
+
+				// Go to next line
+				pos += getNewLineStart(buffer + pos);
+			}
+			if(buffer != NULL)
+			{
+				free(buffer);
+				buffer = NULL;
+			}
+		}
+		else
+		{
+			printf_warn("Can't read file '%s' !!\n", filename);
+		}
+	}
+}
 
 void loadsettings()
 {
@@ -3026,7 +3087,7 @@ int music(char *filename, int loop, long offset)
     }
     if(!sound_open_music(filename, packfile, savedata.musicvol, loop, offset))
     {
-        printf("\nCan't play music file '%s'\n", filename);
+        printf_warn("can't play music file '%s'\n", filename);
         res = 0;
     }
     if(savedata.showtitles && sound_query_music(a, t))
@@ -3114,10 +3175,10 @@ int isNumeric(char *text)
 
 int getValidInt(char *text, char *file, char *cmd)
 {
-    static const char *WARN_NUMBER_EXPECTED = "WARNING: %s tries to load a non-numeric value at %s, where a number is expected!\nerroneus string: %s\n";
-    static const char *WARN_NUMBER_OVERFLOW = "WARNING: %s tries to load a numeric value at %s but overflow occurred!\nerroneus string: %s not in [%d, %d]\n";
-    static const char *WARN_DECIMAL_SEPARATOR = "WARNING: %s tries to load a numeric value at %s and found decimal separator in string: %s!\n";
-    static const char *WARN_USING_VALUE = "WARNING: using numeric value %ld from string %s\n";
+    static const char *WARN_NUMBER_EXPECTED = "%s tries to load a non-numeric value at %s, where a number is expected!\n\terroneus string: %s\n";
+    static const char *WARN_NUMBER_OVERFLOW = "%s tries to load a numeric value at %s but overflow occurred!\n\terroneus string: %s not in [%d, %d]\n";
+    static const char *WARN_DECIMAL_SEPARATOR = "%s tries to load a numeric value at %s and found decimal separator in string: %s!\n";
+    static const char *WARN_USING_VALUE = "using numeric value %ld from string %s\n";
     
     if(!text || !*text)
     {
@@ -3129,19 +3190,19 @@ int getValidInt(char *text, char *file, char *cmd)
         int returnInt = safe_atoi(text, &errDecimalSep, &errSeveralSigns, &errInvalidNumberFound, &errOverflow);
         if(errSeveralSigns != 0 || errInvalidNumberFound != 0 || errOverflow != 0 || errDecimalSep != 0) {
             if(errSeveralSigns == UCHAR_MAX || errInvalidNumberFound == UCHAR_MAX)
-                printf(WARN_NUMBER_EXPECTED, file, cmd, text);
+                printf_warn(WARN_NUMBER_EXPECTED, file, cmd, text);
             if(errOverflow == UCHAR_MAX)
-                printf(WARN_NUMBER_OVERFLOW, file, cmd, text, INT32_MIN, INT32_MAX);
+                printf_warn(WARN_NUMBER_OVERFLOW, file, cmd, text, INT32_MIN, INT32_MAX);
             if(errDecimalSep == UCHAR_MAX)
-                printf(WARN_DECIMAL_SEPARATOR, file, cmd, text);
+                printf_warn(WARN_DECIMAL_SEPARATOR, file, cmd, text);
 
-            printf(WARN_USING_VALUE, returnInt, text);
+            printf_warn(WARN_USING_VALUE, returnInt, text);
 		}
         return returnInt;
     }
     else
     {
-        printf(WARN_NUMBER_EXPECTED, file, cmd, text);
+        printf_warn(WARN_NUMBER_EXPECTED, file, cmd, text);
         return 0;
     }
 
@@ -3149,7 +3210,7 @@ int getValidInt(char *text, char *file, char *cmd)
 
 float getValidFloat(char *text, char *file, char *cmd)
 {
-    static const char *WARN_NUMBER_EXPECTED = "WARNING: %s tries to load a non-numeric value at %s, where a number is expected!\nerroneus string: %s\n";
+    static const char *WARN_NUMBER_EXPECTED = "%s tries to load a non-numeric value at %s, where a number is expected!\nerroneus string: %s\n";
     if(!text || !*text)
     {
         return 0.0f;
@@ -3164,7 +3225,7 @@ float getValidFloat(char *text, char *file, char *cmd)
     }
     else
     {
-        printf(WARN_NUMBER_EXPECTED, file, cmd, text);
+        printf_warn(WARN_NUMBER_EXPECTED, file, cmd, text);
         return 0.0f;
     }
 }
@@ -3744,7 +3805,7 @@ void lifebar_colors()
                 }
                 else if(command && command[0])
                 {
-                    printf("Warning: Unknown command in lifebar.txt: '%s'.\n", command);
+                    printf_warn("Unknown command in lifebar.txt: '%s'.\n", command);
                 }
             }
         }
@@ -3803,7 +3864,8 @@ void load_background(char *filename)
     {
         if (loadscreen32(filename, packfile, &background))
         {
-            printf("Loaded 32-bit background '%s'\n", filename);
+			if(!disablelog)
+                printf("Loaded 32-bit background '%s'\n", filename);
         }
         else
         {
@@ -3947,7 +4009,8 @@ void load_cached_background(char *filename)
     pal[0] = pal[1] = pal[2] = 0;
     //palette_set_corrected(pal, savedata.gamma,savedata.gamma,savedata.gamma, savedata.brightness,savedata.brightness,savedata.brightness);
     change_system_palette(0);
-    printf("use cached bg\n");
+    if(!disablelog)
+        printf("use cached bg\n");
 #endif
 }
 
@@ -4211,7 +4274,7 @@ void prepare_sprite_map(size_t size)
     if(sprite_map == NULL || size + 1 > sprite_map_max_items )
     {
 #ifdef VERBOSE
-        printf("%s %p\n", "prepare_sprite_map was", sprite_map);
+        printf_debug("%s %p\n", "prepare_sprite_map was", sprite_map);
 #endif
         sprite_map_max_items = (((size + 1) >> 8) + 1) << 8;
         sprite_map = realloc(sprite_map, sizeof(*sprite_map) * sprite_map_max_items);
@@ -4494,11 +4557,13 @@ void load_all_fonts()
             }
             if(font_loadmask(i, path, packfile, fontmonospace[i] | fontmbs[i]))
             {
-                printf("%d(m) ", i + 1);
+                if(!disablelog)
+                    printf("%d(m) ", i + 1);
             }
             else
             {
-                printf("%d ", i + 1);
+                if(!disablelog)
+                    printf("%d ", i + 1);
             }
         }
     }
@@ -5611,14 +5676,15 @@ int free_model(s_model *model)
     {
         return 0;
     }
-    printf("Unload '%s' ", model->name);
+    if(!disablelog)
+        printf("Unload '%s' ", model->name);
 
     if(hasFreetype(model, MF_ANIMLIST))
     {
         anim_list_delete(model->index);
     }
-
-    printf(".");
+    if(!disablelog)
+        printf(".");
 
     if(hasFreetype(model, MF_COLOURMAP))
     {
@@ -5638,69 +5704,81 @@ int free_model(s_model *model)
         model->maps_loaded = 0;
     }
 
-    printf(".");
+    if(!disablelog)
+        printf(".");
 
     if(hasFreetype(model, MF_PALETTE) && model->palette)
     {
         free(model->palette);
         model->palette = NULL;
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
     if(hasFreetype(model, MF_WEAPONS) && model->weapon && model->ownweapons)
     {
         free(model->weapon);
         model->weapon = NULL;
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
     if(hasFreetype(model, MF_BRANCH) && model->branch)
     {
         free(model->branch);
         model->branch = NULL;
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
     if(hasFreetype(model, MF_ANIMATION) && model->animation)
     {
         free(model->animation);
         model->animation = NULL;
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
     if(hasFreetype(model, MF_DEFENSE) && model->defense)
     {
         free(model->defense);
         model->defense = NULL;
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
     if(hasFreetype(model, MF_OFF_FACTORS) && model->offense_factors)
     {
         free(model->offense_factors);
         model->offense_factors = NULL;
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
     if(hasFreetype(model, MF_SPECIAL) && model->special)
     {
         free(model->special);
         model->special = NULL;
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
     if(hasFreetype(model, MF_SMARTBOMB) && model->smartbomb)
     {
         free(model->smartbomb);
         model->smartbomb = NULL;
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
 
     if(hasFreetype(model, MF_SCRIPTS))
     {
         clear_all_scripts(model->scripts, 2);
         free_all_scripts(&model->scripts);
     }
-    printf(".");
+    if(!disablelog)
+        printf(".");
 
     model_cache[model->index].model = NULL;
     deleteModel(model->name);
-    printf(".");
+    if(!disablelog)
+        printf(".");
 
-    printf("Done.\n");
+    if(!disablelog)
+        printf("Done.\n");
 
     return models_loaded--;
 }
@@ -6328,7 +6406,7 @@ void prepare_cache_map(size_t size)
     if(model_cache == NULL || size + 1 > cache_map_max_items )
     {
 #ifdef VERBOSE
-        printf("%s %p\n", "prepare_cache_map was", model_cache);
+        printf_debug("%s %p\n", "prepare_cache_map was", model_cache);
 #endif
         do
         {
@@ -6347,7 +6425,8 @@ void prepare_cache_map(size_t size)
 void cache_model(char *name, char *path, int flag)
 {
     int len;
-    printf("Cacheing '%s' from %s\n", name, path);
+    if(!disablelog)
+        printf("Cacheing '%s' from %s\n", name, path);
     prepare_cache_map(models_cached + 1);
     memset(&model_cache[models_cached], 0, sizeof(model_cache[models_cached]));
 
@@ -8226,7 +8305,7 @@ void lcmHandleCommandAiattack(ArgList *arglist, s_model *newchar, int *aiattacks
         }
         else
         {
-            printf("Model '%s' has invalid A.I. attack switch: '%s'\n", filename, value);
+            printf_warn("model '%s' has invalid A.I. attack switch: '%s'\n", filename, value);
         }
     }
     /*
@@ -8854,8 +8933,8 @@ s_model *load_cached_model(char *name, char *owner, char unload)
          *value3        = NULL;
 
     char fnbuf[MAX_BUFFER_LEN] = {""},
-                      namebuf[MAX_BUFFER_LEN] = {""},
-                                     argbuf[MAX_ARG_LEN + 1] = {""};
+         namebuf[MAX_BUFFER_LEN] = {""},
+         argbuf[MAX_ARG_LEN + 1] = {""};
 
     ArgList arglist;
 
@@ -9009,11 +9088,12 @@ s_model *load_cached_model(char *name, char *owner, char unload)
     s_scripts *tempscripts;
 
 #ifdef DEBUG
-    printf("load_cached_model: %s, unload: %d\n", name, unload);
+    printf_debug("load_cached_model: %s, unload: %d\n", name, unload);
 #endif
 
     // Start up the standard log entry.
-    printf("Loaded '%s'", name);
+    if(!disablelog)
+        printf("Loaded '%s'", name);
 
     // Model already loaded but we might want to unload after level is completed.
     if((tempmodel = findmodel(name)) != NULL)
@@ -9031,7 +9111,8 @@ s_model *load_cached_model(char *name, char *owner, char unload)
 
     // Get the text file name of model.
     filename = model_cache[cacheindex].path;
-    printf(" from %s \n", filename);
+    if(!disablelog)    
+        printf(" from %s \n", filename);
 
     if(buffer_pakfile(filename, &buf, &size) != 1)
     {
@@ -10100,22 +10181,22 @@ s_model *load_cached_model(char *name, char *owner, char unload)
                     switch(errorVal)
                     {
                     case 0: // uhm wait, we just tested for !errorVal...
-                        value2 = "Failed to create colourmap. Image Used Twice!";
+                        value2 = "failed to create colourmap. Image Used Twice!";
                         break;
                     case -1: //should not happen now
-                        value2 = "Failed to create colourmap. Color maps full error (color maps are unlimited by engine - check memory limits of console!";
+                        value2 = "failed to create colourmap. Color maps full error (color maps are unlimited by engine - check memory limits of console!";
                         break;
                     case -2:
-                        value2 = "Failed to create colourmap. Failed to allocate memory!";
+                        value2 = "failed to create colourmap. Failed to allocate memory!";
                         break;
                     case -3:
-                        value2 = "Failed to create colourmap. Failed to load file 1";
+                        value2 = "failed to create colourmap. Failed to load file 1";
                         break;
                     case -4:
-                        value2 = "Failed to create colourmap. Failed to load file 2";
+                        value2 = "failed to create colourmap. Failed to load file 2";
                         break;
                     }
-                    printf("Warning: %s\n", value2);
+                    printf_warn("%s\n", value2);
                 }
                 else
                 {
@@ -11867,7 +11948,7 @@ s_model *load_cached_model(char *name, char *owner, char unload)
                 {
                     if(!handle_txt_include(command, &arglist, &filename, fnbuf, &buf, &pos, &size))
                     {
-                        printf("Command '%s' not understood in file '%s'!\n", command, filename);
+                        printf_warn("command '%s' not understood in file '%s'!\n", command, filename);
                     }
                 }
             }
@@ -11882,10 +11963,13 @@ s_model *load_cached_model(char *name, char *owner, char unload)
 
     if(scriptbuf && animscriptbuf && scriptbuf[0] && animscriptbuf[0])
     {
-        writeToScriptLog("\n#### animationscript function main #####\n# ");
-        writeToScriptLog(filename);
-        writeToScriptLog("\n########################################\n");
-        writeToScriptLog(scriptbuf);
+        if(!disablescriptlog)
+        {
+            writeToScriptLog("\n#### animationscript function main #####\n# ");
+            writeToScriptLog(filename);
+            writeToScriptLog("\n########################################\n");
+            writeToScriptLog(scriptbuf);
+        }
 
         lcmScriptDeleteMain(&scriptbuf);
         lcmScriptAddMain(&animscriptbuf);
@@ -11916,10 +12000,13 @@ s_model *load_cached_model(char *name, char *owner, char unload)
         }
         tempInt = Script_AppendText(newchar->scripts->animation_script, scriptbuf, filename);
         //Interpreter_OutputPCode(newchar->scripts->animation_script.pinterpreter, "code");
-        writeToScriptLog("\n#### animationscript function main #####\n# ");
-        writeToScriptLog(filename);
-        writeToScriptLog("\n########################################\n");
-        writeToScriptLog(scriptbuf);
+        if(!disablescriptlog)
+        {
+            writeToScriptLog("\n#### animationscript function main #####\n# ");
+            writeToScriptLog(filename);
+            writeToScriptLog("\n########################################\n");
+            writeToScriptLog(scriptbuf);
+        }
     }
 
     if(!newchar->isSubclassed)
@@ -12134,10 +12221,9 @@ lCleanup:
         return newchar;
     }
 
+    #undef LOG_CMD_TITLE
     borShutdown(1, "Fatal Error in load_cached_model, file: %s, line %d, message: %s\n", filename, line, shutdownmessage);
     return NULL;
-
-    #undef LOG_CMD_TITLE
 }
 
 
@@ -12459,7 +12545,7 @@ void load_model_constants()
             default:
                 if(cmd >= CMD_MODELSTXT_THE_END)
                 {
-                    printf("command %s not understood in %s, line %d\n", command, filename, line);
+                    printf_warn("command %s not understood in %s, line %d\n", command, filename, line);
                 }
                 break;
             }
@@ -12801,7 +12887,7 @@ int load_models()
             default:
                 if(cmd >= CMD_MODELSTXT_THE_END)
                 {
-                    printf("command %s not understood in %s, line %d\n", command, filename, line);
+                    printf_warn("command %s not understood in %s, line %d\n", command, filename, line);
                 }
                 break;
             }
@@ -12827,7 +12913,8 @@ int load_models()
             update_loading(&loadingbg[0], ++pos, modelLoadCount);
         }
     }
-    printf("\nLoading models...............\tDone!\n");
+    if(!disablelog)
+        printf("\nLoading models...............\tDone!\n");
 
 
     if(buf)
@@ -14039,9 +14126,9 @@ void load_levelorder()
         default:
             if (command && command[0])
             {
-                if (err <= 0) printf("\n");
+                if (err <= 0) printf_error("\n");
                 ++err;
-                printf("Command '%s' not understood in level order!\n", command);
+                printf_error("command '%s' not understood in level order!\n", command);
             }
         }
 
@@ -14449,7 +14536,8 @@ void unload_level()
         level->quaketime = 0;
         level->waiting = 0;
 
-        printf("Level Unloading: '%s'\n", level->name);
+        if(!disablelog)
+            printf("Level Unloading: '%s'\n", level->name);
         getRamStatus(BYTES);
         free(level->name);
         level->name = NULL;
@@ -14477,7 +14565,8 @@ void unload_level()
             }
         }
         while(temp);
-        printf("RAM Status:\n");
+        if(!disablelog)
+             printf("RAM Status:\n");
         getRamStatus(BYTES);
 
 
@@ -14663,9 +14752,8 @@ void load_level(char *filename)
 
     unload_level();
 
-    printf("Level Loading:   '%s'\n", filename);
-
-
+    if(!disablelog)
+        printf("Level Loading:   '%s'\n", filename);
 
     getRamStatus(BYTES);
 
@@ -14830,7 +14918,7 @@ void load_level(char *filename)
             break;
         case CMD_LEVEL_LOAD:
 #ifdef DEBUG
-            printf("load_level: load %s, %s\n", GET_ARG(1), filename);
+            printf_debug("load_level: load %s, %s\n", GET_ARG(1), filename);
 #endif
             tempmodel = findmodel(GET_ARG(1));
             if (!tempmodel)
@@ -15440,7 +15528,7 @@ void load_level(char *filename)
             // Load model (if not loaded already)
             cached_model = findmodel(GET_ARG(1));
 #ifdef DEBUG
-            printf("load_level: spawn %s, %s, cached: %p\n", GET_ARG(1), filename, cached_model);
+            printf_debug("load_level: spawn %s, %s, cached: %p\n", GET_ARG(1), filename, cached_model);
 #endif
             if(cached_model)
             {
@@ -15656,7 +15744,7 @@ void load_level(char *filename)
             {
                 if(!handle_txt_include(command, &arglist, &filename, fnbuf, &buf, &pos, &size))
                 {
-                    printf("Command '%s' not understood in file '%s'!\n", command, filename);
+                    printf_warn("command '%s' not understood in file '%s'!\n", command, filename);
                 }
             }
         }
@@ -15863,22 +15951,28 @@ void load_level(char *filename)
         addhole(level->width, PLAYER_MAX_Z, -panel_height, 0, 1000, 1000, panel_height, 0, 0);
     }
 
-    if(crlf)
+    if(!disablelog)
     {
-        printf("\n");
+        if(crlf)
+        {
+            printf("\n");
+        }
+        printf("Level Loaded:    '%s'\n", level->name);
     }
-    printf("Level Loaded:    '%s'\n", level->name);
     totalram = getSystemRam(BYTES);
     freeram = getFreeRam(BYTES);
     usedram = getUsedRam(BYTES);
-    printf("Total Ram: %11"PRIu64" Bytes ( %5"PRIu64" MB )\n Free Ram: %11"PRIu64" Bytes ( %5"PRIu64" MB )\n Used Ram: %11"PRIu64" Bytes ( %5"PRIu64" MB )\n",
-        totalram,
-        totalram >> 20,
-        freeram,
-        freeram >> 20,
-        usedram,
-        usedram >> 20);
-    printf("Total sprites mapped: %d\n\n", sprites_loaded);
+    if(!disablelog)
+    {
+        printf("Total Ram: %11"PRIu64" Bytes ( %5"PRIu64" MB )\n Free Ram: %11"PRIu64" Bytes ( %5"PRIu64" MB )\n Used Ram: %11"PRIu64" Bytes ( %5"PRIu64" MB )\n",
+            totalram,
+            totalram >> 20,
+            freeram,
+            freeram >> 20,
+            usedram,
+            usedram >> 20);
+        printf("Total sprites mapped: %d\n\n", sprites_loaded);
+    }
 
 lCleanup:
 
@@ -15905,8 +15999,6 @@ lCleanup:
         borShutdown(1, "ERROR: load_level, file %s, line %d, message: %s", filename, line, errormessage);
     }
 }
-
-
 
 
 
@@ -34663,7 +34755,7 @@ int recordInputs()
         playrecstatus->buffer = (RecKeys*)calloc(window+playrecstatus->synctime*sizeof(RecKeys),sizeof(RecKeys));
         if (playrecstatus->buffer == NULL)
         {
-            printf("Error to allocate buffer in record inputs mode.\n");
+            printf_error("Error to allocate buffer in record inputs mode.\n");
             return 0;
         }
         playrecstatus->begin = 1;
@@ -34679,7 +34771,7 @@ int recordInputs()
             playrecstatus->buffer = (RecKeys*)realloc(playrecstatus->buffer,sizeof(RecKeys)*((int)(trunc(playrecstatus->synctime/window)+1)*window+window));
             if (playrecstatus->buffer == NULL)
             {
-                printf("Error to allocate buffer in record inputs mode.\n");
+                printf_error("Error to allocate buffer in record inputs mode.\n");
                 return 0;
             } else memset(playrecstatus->buffer+(playrecstatus->synctime+1),0,(int)(trunc(playrecstatus->synctime/window)+1)*window+window-(playrecstatus->synctime+1)-1); // -2 becouse -1 is to 0 to size-1
         }
@@ -34745,18 +34837,18 @@ int playRecordedInputs()
 
             if (filesize <= 0)
             {
-                printf("Empty recorded inputs file.\n");
+                printf_error("Empty recorded inputs file.\n");
                 return 0;
             }
             playrecstatus->buffer = (RecKeys*)calloc(1,filesize+1);
             if(!playrecstatus->buffer)
             {
-                printf("Error to allocate buffer for recorded inputs.\n");
+                printf_error("Error to allocate buffer for recorded inputs.\n");
                 return 0;
             }
         } else
         {
-            printf("Error to open recorded inputs file.\n");
+            printf_error("Error to open recorded inputs file.\n");
             return 0;
         }
         fread(&header, 6, 1, playrecstatus->handle);
@@ -34787,7 +34879,7 @@ int playRecordedInputs()
             u32 nextsynctime = reckey.synctime;
 
             //time = (u32)reckey.time;
-            printf("Play recorded inputs: Out of sync! Time: %d, RecTime: %d\n",time,reckey.time);
+            printf_warn("Play recorded inputs: Out of sync! Time: %d, RecTime: %d\n",time,reckey.time);
             /*if ( interval != reckey.interval )
             {
                 //interval = (u32)reckey.interval;
@@ -34811,7 +34903,7 @@ int playRecordedInputs()
             {
                 u32 nextsynctime = reckey.synctime;
 
-                printf("Play recorded inputs: Out of sync! SyncTime: %d, RecSyncTime: %d\n",playrecstatus->synctime,reckey.synctime);
+                printf_warn("Play recorded inputs: Out of sync! SyncTime: %d, RecSyncTime: %d\n",playrecstatus->synctime,reckey.synctime);
 
                 while( playrecstatus->synctime > reckey.synctime && nextsynctime > 0 ) {
                     memcpy( &reckey, &playrecstatus->buffer[--nextsynctime], sizeof(reckey) );
@@ -35670,7 +35762,7 @@ void guistartup()
     control_init(2);
     apply_controls();
 
-    init_videomodes(0);
+    init_videomodes();
     if(!video_set_mode(videomodes))
     {
         borShutdown(1, "Unable to set video mode: %d x %d!\n", videomodes.hRes, videomodes.vRes);
@@ -35687,14 +35779,17 @@ void startup()
 {
     int i;
 
-    printf("FileCaching System Init......\t");
+    if(!disablelog)
+        printf("FileCaching System Init......\t");
     if(pak_init())
     {
-        printf("Enabled\n");
+	    if(!disablelog)
+            printf("Enabled\n");
     }
     else
     {
-        printf("Disabled\n");
+	    if(!disablelog)
+            printf("Disabled\n");
     }
 
 #if PSP
@@ -35724,38 +35819,47 @@ void startup()
     loadHighScoreFile();
     clearSavedGame();
 
-    init_videomodes(1);
+    init_videomodes();
     if(!video_set_mode(videomodes))
     {
         borShutdown(1, "Unable to set video mode: %d x %d!\n", videomodes.hRes, videomodes.vRes);
     }
 
-    printf("Loading menu.txt.............\t");
+    if(!disablelog)
+        printf("Loading menu.txt.............\t");
     load_menu_txt();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Loading fonts................\t");
+    if(!disablelog)
+        printf("Loading fonts................\t");
     load_all_fonts();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Timer init...................\t");
+    if(!disablelog)
+        printf("Timer init...................\t");
     borTimerInit();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Initialize Sound..............\t");
+    if(!disablelog)
+        printf("Initialize Sound..............\t");
     if(sound_init(12))
     {
         if(load_special_sounds())
         {
-            printf("Done!\n");
+            if(!disablelog)
+                printf("Done!\n");
         }
         else
         {
-            printf("\n");
+            if(!disablelog)
+                printf("\n");
         }
         if(!sound_start_playback())
         {
-            printf("Warning: can't play sound!\n");
+            printf_warn("can't play sound!\n");
         }
         SB_setvolume(SB_MASTERVOL, 15);
         SB_setvolume(SB_VOICEVOL, savedata.soundvol);
@@ -35768,48 +35872,64 @@ void startup()
     // init. input recorder
     init_input_recorder();
 
-    printf("Loading sprites..............\t");
+    if(!disablelog)
+        printf("Loading sprites..............\t");
     load_special_sprites();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Loading level order..........\t");
+    if(!disablelog)
+        printf("Loading level order..........\t");
     load_levelorder();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Loading model constants......\t");
+    if(!disablelog)
+        printf("Loading model constants......\t");
     load_model_constants();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Loading script settings......\t");
+    if(!disablelog)
+        printf("Loading script settings......\t");
     load_script_setting();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Loading scripts..............\t");
+    if(!disablelog)
+        printf("Loading scripts..............\t");
     load_scripts();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Loading models...............\n\n");
+    if(!disablelog)
+        printf("Loading models...............\n\n");
     load_models();
 
-    printf("Object engine init...........\t");
+    if(!disablelog)
+        printf("Object engine init...........\t");
     if(!alloc_ents())
     {
         borShutdown(1, "Not enough memory for game objects!\n");
     }
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
-    printf("Input init...................\t");
+    if(!disablelog)
+        printf("Input init...................\t");
     control_init(savedata.usejoy);
     apply_controls();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
 #ifdef CACHE_BACKGROUNDS
-    printf("Caching backgrounds..........\t");
+    if(!disablelog)
+        printf("Caching backgrounds..........\t");
     cache_all_backgrounds();
-    printf("Done!\n");
 #endif
 
-    printf("Create blending tables.......\t");
+    if(!disablelog)
+        printf("Create blending tables.......\t");
     if(pixelformat == PIXEL_x8)
     {
         create_blend_tables_x8(blendtables);
@@ -35819,20 +35939,23 @@ void startup()
     {
         neontable[i] = i;
     }
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
     if(savedata.logo++ > 10)
     {
         savedata.logo = 0;
     }
 
-    printf("Save settings so far........\t");
+    if(!disablelog)
+        printf("Save settings so far........\t");
     savesettings();
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 
     startup_done = 1;
-
-    printf("\n\n");
+    if(!disablelog)
+        printf("\n\n");
 
 }
 
@@ -35916,7 +36039,7 @@ playgif_end:
 
     if(0 == result)
     {
-        printf("\nWarning, an error occurred while playing animated gif file '%s'.\n", filename);
+        printf_warn("an error occurred while playing animated gif file '%s'.\n", filename);
     }
     return result;
 
@@ -36054,10 +36177,10 @@ void playscene(char *filename)
                 }
                 else if(status == 0)
                 {
-                    printf("An error occurred when trying to play the video %s\n", videofile);
+                    printf_error("An error occurred when trying to play the video %s\n", videofile);
                 }
 #else
-                printf("Skipping video %s; WebM playback not supported on this platform\n");
+                printf_warn("skipping video %s; WebM playback not supported on this platform\n");
 #endif
             }
             else if(stricmp(command, "silence") == 0)
@@ -36803,7 +36926,7 @@ int selectplayer(int *players, char *filename, int useSavedGame)
 				}
 				else if (command && command[0])
 				{
-					printf("Command '%s' is not understood in file '%s'\n", command, filename);
+					printf_warn("Command '%s' is not understood in file '%s'\n", command, filename);
 				}
 			}
 
@@ -37249,7 +37372,7 @@ void playgame(int *players,  unsigned which_set, int useSavedGame)
         memset(player, 0, sizeof(*player) * 4);
         if(!loadScriptFile())
         {
-            printf("Warning, failed to load script save!\n");
+            printf_warn("failed to load script save!\n");
         }
         current_level = save->level;
         current_stage = save->stage;
@@ -37838,7 +37961,7 @@ void term_videomodes()
 }
 
 // Load Video Mode from file
-void init_videomodes(int log)
+void init_videomodes()
 {
     char *filename = "data/video.txt";
     int tmp;
@@ -37852,10 +37975,8 @@ void init_videomodes(int log)
 
     //
 
-    if(log)
-    {
+    if(!disablelog)
         printf("Initializing video............\n");
-    }
 
     // Use an alternative video.txt if there is one.  Some of these are long filenames; create your PAKs with borpak and you'll be fine.
 #define tryfile(X) if((tmp=openpackfile(X,packfile))!=-1) { closepackfile(tmp); filename=X; goto readfile; }
@@ -37899,11 +38020,12 @@ readfile:
     if(buffer_pakfile(filename, &buf, &size) != 1)
     {
         videoMode = 0;
-        printf("'%s' not found.\n", filename);
+        printf_warn("'%s' not found.\n", filename);
         goto VIDEOMODES;
     }
 
-    printf("Reading video settings from '%s'.\n", filename);
+    if(!disablelog)
+        printf("Reading video settings from '%s'.\n", filename);
 
     // Now interpret the contents of buf line by line
     pos = 0;
@@ -37958,12 +38080,12 @@ readfile:
             }
             else if(stricmp(command, "colourdepth") == 0)
             {
-                printf("\nColordepth is depreciated. All modules are displayed with a 32bit color screen.\n\n");
+                printf_warn("Colordepth is depreciated. All modules are displayed with a 32bit color screen.\n\n");
             }
             else if(stricmp(command, "forcemode") == 0) {}
             else if(command && command[0])
             {
-                printf("Command '%s' not understood in file '%s'!\n", command, filename);
+                printf_warn("Command '%s' not understood in file '%s'!\n", command, filename);
             }
         }
         // Go to next line
@@ -38092,7 +38214,8 @@ VIDEOMODES:
 
     case 255:
         videomodes.dOffset = videomodes.vRes * 0.9625;
-        printf("\nUsing debug video mode: %d x %d\n", videomodes.hRes, videomodes.vRes);
+        if(!disablelog)
+            printf("Using debug video mode: %d x %d\n", videomodes.hRes, videomodes.vRes);
         break;
     default:
         borShutdown(1, "Invalid video mode: %d in 'data/video.txt', supported modes:\n"
@@ -38118,10 +38241,8 @@ VIDEOMODES:
     //video_set_mode(videomodes);
     clearscreen(vscreen);
 
-    if(log)
-    {
+    if(!disablelog)
         printf("Initialized video.............\t%dx%d (Mode: %d)\n\n", videomodes.hRes, videomodes.vRes, videoMode);
-    }
 }
 
 
@@ -38166,7 +38287,8 @@ void keyboard_setup(int player)
     int OPTIONS_NUM = btnnum + 2;
     #endif
 
-    printf("Loading control settings.......\t");
+    if(!disablelog)
+        printf("Loading control settings.......\t");
 
     strcpy(buttonnames[SDID_MOVEUP], "Move Up");
     strcpy(buttonnames[SDID_MOVEDOWN], "Move Down");
@@ -38372,7 +38494,8 @@ void keyboard_setup(int player)
 
     update(0, 0);
     bothnewkeys = 0;
-    printf("Done!\n");
+    if(!disablelog)
+        printf("Done!\n");
 }
 
 void menu_options_input()
@@ -38755,7 +38878,7 @@ void menu_options_config()     //  OX. Load from / save to default.cfg. Restore 
             case 1:
                 loadfromdefault();
                 //borShutdown(2, "\nSettings Loaded From Default.cfg. Restart Required.\n\n");
-                init_videomodes(0);
+                init_videomodes();
                 if(!video_set_mode(videomodes))
                 {
                     borShutdown(1, "Unable to set video mode: %d x %d!\n", videomodes.hRes, videomodes.vRes);
@@ -38767,7 +38890,7 @@ void menu_options_config()     //  OX. Load from / save to default.cfg. Restore 
             case 2:
                 clearsettings();
                 //borShutdown(2, "\nSettings Loaded From Default.cfg. Restart Required.\n\n");
-                init_videomodes(0);
+                init_videomodes();
                 if(!video_set_mode(videomodes))
                 {
                     borShutdown(1, "Unable to set video mode: %d x %d!\n", videomodes.hRes, videomodes.vRes);
@@ -39736,7 +39859,15 @@ void openborMain(int argc, char **argv)
     int i;
     int argl;
 
+    char* filename = getPlatformConfigFile();
+    if(filename)
+		loadPlatformConfig(filename);
+	else
+		printf("No platform config file found !!\n");
+
     printf("OpenBoR %s, Compile Date: " __DATE__ "\n\n", VERSION);
+    // flush script log
+    writeToScriptLog("#### OpenBOR Compile Timestamp: " __DATE__ " " __TIME__ " #####");
 
     if(argc > 1)
     {
@@ -39759,7 +39890,8 @@ void openborMain(int argc, char **argv)
     createModelList();
 
     // Load necessary components.
-    printf("Game Selected: %s\n\n", packfile);
+    if(!disablelog)
+        printf("Game Selected: %s\n\n", packfile);
     loadsettings();
     startup();
 	bothnewkeys = 0;

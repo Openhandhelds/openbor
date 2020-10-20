@@ -71,6 +71,9 @@ typedef void DIR;
 #endif
 
 #ifdef WII
+#define CONFIG_PLATFORMFILE()        "Configs/Platform.txt"
+#define CHECK_CONFIG_PLATFORMFILE()  fileExists(CONFIG_PLATFORMFILE())
+#define READ_CONFIG_FILE(filename)   fopen(getFullPath(filename), "rt")
 #define CHECK_LOGFILE(type)  type ? fileExists(getFullPath("Logs/OpenBorLog.txt")) : fileExists(getFullPath("Logs/ScriptLog.txt"))
 #define OPEN_LOGFILE(type)   type ? fopen(getFullPath("Logs/OpenBorLog.txt"), "wt") : fopen(getFullPath("Logs/ScriptLog.txt"), "wt")
 #define APPEND_LOGFILE(type) type ? fopen(getFullPath("Logs/OpenBorLog.txt"), "at") : fopen(getFullPath("Logs/ScriptLog.txt"), "at")
@@ -78,7 +81,10 @@ typedef void DIR;
 #define COPY_ROOT_PATH(buf, name) strcpy(buf, rootDir); strcat(buf, name); strcat(buf, "/");
 #define COPY_PAKS_PATH(buf, name) strcpy(buf, paksDir); strcat(buf, "/"); strcat(buf, name);
 #elif VITA
-#define CHECK_LOGFILE(type)  type ? fileExists("ux0:/data/OpenBOR/Logs/OpenBorLog.txt") : fileExists("./Logs/ScriptLog.txt")
+#define CONFIG_PLATFORMFILE()        "ux0:/data/OpenBOR/Configs/Platform.txt"
+#define CHECK_CONFIG_PLATFORMFILE()  fileExists(CONFIG_PLATFORMFILE())
+#define READ_CONFIG_FILE(filename)   fopen(filename, "rt")
+#define CHECK_LOGFILE(type)  type ? fileExists("ux0:/data/OpenBOR/Logs/OpenBorLog.txt") : fileExists("ux0:/data/OpenBOR/Logs/ScriptLog.txt")
 #define OPEN_LOGFILE(type)   type ? fopen("ux0:/data/OpenBOR/Logs/OpenBorLog.txt", "wt") : fopen("ux0:/data/OpenBOR/Logs/ScriptLog.txt", "wt")
 #define APPEND_LOGFILE(type) type ? fopen("ux0:/data/OpenBOR/Logs/OpenBorLog.txt", "at") : fopen("ux0:/data/OpenBOR/Logs/ScriptLog.txt", "at")
 #define READ_LOGFILE(type)   type ? fopen("ux0:/data/OpenBOR/Logs/OpenBorLog.txt", "rt") : fopen("ux0:/data/OpenBOR/Logs/ScriptLog.txt", "rt")
@@ -86,6 +92,10 @@ typedef void DIR;
 #define COPY_PAKS_PATH(buf, name) strcpy(buf, "ux0:/data/OpenBOR/Paks/"); strcat(buf, name);
 #elif ANDROID
 //msmalik681 now using AndroidRoot fuction from sdlport.c to update all android paths.
+#define CONFIG_PLATFORMFILE() "Configs/Platform.txt"
+#define AconfigPlatform AndroidRoot(CONFIG_PLATFORMFILE())
+#define CHECK_CONFIG_PLATFORMFILE()  fileExists(AconfigPlatform)
+#define READ_CONFIG_FILE(filename)   fopen(filename, "rt")
 #define Alog AndroidRoot("Logs/OpenBorLog.txt")
 #define Aslog AndroidRoot("Logs/ScriptLog.txt")
 #define CHECK_LOGFILE(type)  type ? fileExists(Alog) : fileExists(Aslog)
@@ -95,6 +105,9 @@ typedef void DIR;
 #define COPY_ROOT_PATH(buf, name) strncpy(buf, rootDir, strlen(rootDir)); strncat(buf, name, strlen(name)); strncat(buf, "/", 1);
 #define COPY_PAKS_PATH(buf, name) strncpy(buf, paksDir, strlen(paksDir)); strncat(buf, "/", 1); strncat(buf, name, strlen(name));
 #else
+#define CONFIG_PLATFORMFILE() "./Configs/Platform.txt"
+#define CHECK_CONFIG_PLATFORMFILE()  fileExists(CONFIG_PLATFORMFILE())
+#define READ_CONFIG_FILE(filename)   fopen(filename, "rt")
 #define CHECK_LOGFILE(type)  type ? fileExists("./Logs/OpenBorLog.txt") : fileExists("./Logs/ScriptLog.txt")
 #define OPEN_LOGFILE(type)   type ? fopen("./Logs/OpenBorLog.txt", "wt") : fopen("./Logs/ScriptLog.txt", "wt")
 #define APPEND_LOGFILE(type) type ? fopen("./Logs/OpenBorLog.txt", "at") : fopen("./Logs/ScriptLog.txt", "at")
@@ -148,6 +161,7 @@ size_t getNewLineStart(char *buf)
 }
 
 FILE *openborLog = NULL;
+FILE *openborErrorLog = NULL;
 FILE *scriptLog = NULL;
 char debug_msg[2048];
 u32 debug_time = 0;
@@ -243,11 +257,26 @@ CLOSE_AND_QUIT:
 }
 #endif
 
-void writeToLogFile(const char *msg, ...)
+void writeToLogFile(int msgType, const char *msg, ...)
 {
+    static const char *warningMsg = "Warning:\t";
+    static const char *debugMsg = "Debug:\t";
+    static const char *errorMsg = "Error:\t";
+    const char* prefixMsg = NULL;
     va_list arglist;
 
+    if(msgType > 0)
+    {
+        if(msgType == LOG_WARNING_MSG)
+            prefixMsg = warningMsg;
+        else if(msgType == LOG_DEBUG_MSG)
+            prefixMsg = debugMsg;
+        else if(msgType == LOG_ERROR_MSG)
+            prefixMsg = errorMsg;
+    }
 #ifdef DC
+    if(msgType > 0)
+        fprintf(stdout, "%s", prefixMsg);
     va_start(arglist, msg);
     vfprintf(stdout, msg, arglist);
     va_end(arglist);
@@ -261,6 +290,8 @@ void writeToLogFile(const char *msg, ...)
             return;
         }
     }
+    if(msgType > 0)
+        fprintf(openborLog, "%s", prefixMsg);
     va_start(arglist, msg);
     vfprintf(openborLog, msg, arglist);
     va_end(arglist);
@@ -299,12 +330,12 @@ void *checkAlloc(void *ptr, size_t size, const char *func, const char *file, int
 {
     if (size > 0 && ptr == NULL)
     {
-        writeToLogFile("\n\n********** An Error Occurred **********"
+        writeToLogFile(LOG_INFO_MSG, "\n\n********** An Error Occurred **********"
                        "\n*            Shutting Down            *\n\n");
-        writeToLogFile("Out of memory!\n");
-        writeToLogFile("Allocation of size %i failed in function '%s' at %s:%i.\n", size, func, file, line);
+        writeToLogFile(LOG_ERROR_MSG, "out of memory!\n");
+        writeToLogFile(LOG_ERROR_MSG, "allocation of size %i failed in function '%s' at %s:%i.\n", size, func, file, line);
 #ifndef WIN
-        writeToLogFile("Memory usage at exit: %u\n", mallinfo().arena);
+        writeToLogFile(LOG_INFO_MSG, "Memory usage at exit: %u\n", mallinfo().arena);
 #endif
         borExit(2);
     }
@@ -316,10 +347,10 @@ void exitIfFalse(int value, const char *assertion, const char *func, const char 
 {
     if(!value)
     {
-        writeToLogFile("\n\n********** An Error Occurred **********"
+        writeToLogFile(LOG_INFO_MSG, "\n\n********** An Error Occurred **********"
                        "\n*            Shutting Down            *\n\n");
-        writeToLogFile("Assertion `%s' failed in function '%s' at %s:%i.\n", assertion, func, file, line);
-        writeToLogFile("This is an OpenBOR bug.  Please report this at www.chronocrash.com.\n\n");
+        writeToLogFile(LOG_ERROR_MSG, "assertion `%s' failed in function '%s' at %s:%i.\n", assertion, func, file, line);
+        writeToLogFile(LOG_INFO_MSG, "This is an OpenBOR bug.  Please report this at www.chronocrash.com.\n\n");
         borExit(1);
     }
 }
@@ -765,7 +796,7 @@ int32_t safe_atoi(char* str, unsigned char* errDecimalSep, unsigned char* errSev
         if(sign != 0 && iscValidSign(*itStr)) {
             value = sign > 0 ? INT32_MAX : INT32_MIN;
 #ifdef VERBOSE
-            printf("Several signs in the number, last one at index %ld !!\n", itStr - str);
+            printf_debug("Several signs in the number, last one at index %ld !!\n", itStr - str);
 #endif
             if(errSeveralSigns)
                 *errSeveralSigns = UCHAR_MAX;
@@ -782,7 +813,7 @@ int32_t safe_atoi(char* str, unsigned char* errDecimalSep, unsigned char* errSev
         if(iscDecimalSeparator(*itStr)) {
             decimal = 1;
 #ifdef VERBOSE
-            printf("Decimal separator found (%c) at index %ld !!\n", *itStr, itStr - str);
+            printf_debug("Decimal separator found (%c) at index %ld !!\n", *itStr, itStr - str);
 #endif
             if(errDecimalSep)
                 *errDecimalSep = UCHAR_MAX;
@@ -793,7 +824,7 @@ int32_t safe_atoi(char* str, unsigned char* errDecimalSep, unsigned char* errSev
                 if(errInvalidNumberFound)
                     *errInvalidNumberFound = UCHAR_MAX;
 #ifdef VERBOSE
-                printf("Invalid number found (%c) at index %ld !!\n", *itStr, itStr - str);
+                printf_debug("Invalid number found (%c) at index %ld !!\n", *itStr, itStr - str);
 #endif
             }
             break;
@@ -807,7 +838,7 @@ int32_t safe_atoi(char* str, unsigned char* errDecimalSep, unsigned char* errSev
         else {
             value = sign > 0 ? INT32_MAX : INT32_MIN;
 #ifdef VERBOSE
-            printf("Overflow at index %ld !!\n", itStr - str);
+            printf_debug("Overflow at index %ld !!\n", itStr - str);
 #endif
             if(errOverflow)
                 *errOverflow = UCHAR_MAX;
@@ -823,4 +854,53 @@ int32_t safe_atoi(char* str, unsigned char* errDecimalSep, unsigned char* errSev
         return value;
     else
         return sign * value;
+}
+
+char* getPlatformConfigFile()
+{
+	if(CHECK_CONFIG_PLATFORMFILE())
+		return CONFIG_PLATFORMFILE();
+	else
+		return NULL;
+}
+
+void* readConfigFile(const char *filename, size_t *read_buffer_size)
+{
+	char* buffer = NULL;
+	FILE* file = READ_CONFIG_FILE(filename);
+	if(file)
+	{
+		fseek(file, 0, SEEK_END);
+		*read_buffer_size = ftell(file);
+		fseek(file, 0, SEEK_SET);
+		buffer = (char *)malloc(*read_buffer_size + 1);
+
+		printf("read config file '%s'.\n", filename);
+
+		if(buffer == NULL)
+		{
+			fclose(file);
+			borShutdown(1, "Can't create buffer for file '%s'", filename);
+			return buffer;
+		}
+		if(fread(buffer, 1, *read_buffer_size, file) != *read_buffer_size)
+		{
+			if(buffer != NULL)
+			{
+				free(buffer);
+				buffer = NULL;
+				*read_buffer_size = 0;
+			}
+			fclose(file);
+			borShutdown(1, "Can't read from file '%s'", filename);
+			return buffer;
+		}
+		buffer[*read_buffer_size] = 0;        // Terminate string (important!)
+		fclose(file);
+	}
+	else
+	{
+		printf_warn("Warning: no config file '%s'.\n", filename);		
+	}
+	return buffer;
 }

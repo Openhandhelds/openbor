@@ -43,6 +43,10 @@ if [ ! -e Paks ]
 then
   mkdir Paks
 fi
+if [ ! -e Configs ]
+then
+  mkdir Configs
+fi
 if [ ! -e Saves ]
 then
   mkdir Saves

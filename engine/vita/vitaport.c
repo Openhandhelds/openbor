@@ -25,6 +25,7 @@ void Menu(); // defined in menu.c
 char packfile[MAX_FILENAME_LEN] = {"ux0:/data/bor.pak"};
 char paksDir[MAX_FILENAME_LEN];
 char savesDir[MAX_FILENAME_LEN];
+char configsDir[MAX_FILENAME_LEN];
 char logsDir[MAX_FILENAME_LEN];
 char screenShotsDir[MAX_FILENAME_LEN];
 char rootDir[MAX_FILENAME_LEN]; // note: this one ends with a slash
@@ -44,12 +45,14 @@ int main(int argc, char *argv[])
     strcpy(rootDir, "ux0:/data/OpenBOR/");
     strcpy(paksDir, "ux0:/data/OpenBOR/Paks");
     strcpy(savesDir, "ux0:/data/OpenBOR/Saves");
+    strcpy(configsDir, "ux0:/data/OpenBOR/Configs");
     strcpy(logsDir, "ux0:/data/OpenBOR/Logs");
     strcpy(screenShotsDir, "ux0:/data/OpenBOR/ScreenShots");
 
     dirExists(rootDir, 1);
     dirExists(paksDir, 1);
     dirExists(savesDir, 1);
+    dirExists(configsDir, 1);
     dirExists(logsDir, 1);
     dirExists(screenShotsDir, 1);
 

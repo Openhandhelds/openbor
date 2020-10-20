@@ -114,6 +114,7 @@ function psp {
         mkdir ./releases/PSP/OpenBOR/Images
         mkdir ./releases/PSP/OpenBOR/Logs
         mkdir ./releases/PSP/OpenBOR/Paks
+        mkdir ./releases/PSP/OpenBOR/Configs
         mkdir ./releases/PSP/OpenBOR/Saves
         mkdir ./releases/PSP/OpenBOR/Modules
       fi
@@ -166,6 +167,7 @@ function linux {
         mkdir ./releases/$3/OpenBOR
         mkdir ./releases/$3/OpenBOR/Logs
         mkdir ./releases/$3/OpenBOR/Paks
+        mkdir ./releases/$3/OpenBOR/Configs
         mkdir ./releases/$3/OpenBOR/Saves
         mkdir ./releases/$3/OpenBOR/ScreenShots
       fi
@@ -231,6 +233,7 @@ function windows {
         mkdir ./releases/WINDOWS/OpenBOR
         mkdir ./releases/WINDOWS/OpenBOR/Logs
         mkdir ./releases/WINDOWS/OpenBOR/Paks
+        mkdir ./releases/WINDOWS/OpenBOR/Configs
         mkdir ./releases/WINDOWS/OpenBOR/Saves
         mkdir ./releases/WINDOWS/OpenBOR/ScreenShots
       fi
@@ -293,6 +296,7 @@ function wii {
         mkdir ./releases/WII/OpenBOR
         mkdir ./releases/WII/OpenBOR/Logs
         mkdir ./releases/WII/OpenBOR/Paks
+        mkdir ./releases/WII/OpenBOR/Configs
         mkdir ./releases/WII/OpenBOR/Saves
         mkdir ./releases/WII/OpenBOR/ScreenShots
       fi

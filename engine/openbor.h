@@ -3356,7 +3356,7 @@ int selectplayer(int *players, char *filename, int useSavedGame);
 void playgame(int *players,  unsigned which_set, int useSavedGame);
 int load_saved_game();
 void term_videomodes();
-void init_videomodes(int log);
+void init_videomodes();
 void safe_set(int *arr, int index, int newkey, int oldkey);
 
 void keyboard_setup_menu(int player);

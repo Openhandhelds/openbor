@@ -24,7 +24,11 @@ extern char debug_msg[2048];
 extern u32 debug_time;
 
 // *** FUNCTIONS DECLARATIONS ***
-void writeToLogFile(const char *, ...);
+#define LOG_INFO_MSG 0
+#define LOG_WARNING_MSG 1
+#define LOG_ERROR_MSG 2
+#define LOG_DEBUG_MSG 3
+void writeToLogFile(int msgType, const char *, ...);
 void writeToScriptLog(const char *msg);
 
 #ifndef DC
@@ -66,6 +70,9 @@ void get_time_string(char buffer[], unsigned buffer_size, time_t timestamp, char
 void get_now_string(char buffer[], unsigned buffer_size, char* pattern);
 
 void Array_Check_Size( const char *f_caller, char **array, int new_size, int *curr_size_allocated, int grow_step );
+
+char* getPlatformConfigFile();
+void* readConfigFile(const char *filename, size_t* read_buffer_size);
 
 #endif
 
